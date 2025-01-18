@@ -1,0 +1,20 @@
+<div x-data="citySearch()" class="relative">
+    <input type="text"
+           x-model="query"
+           @input.debounce.150ms="fetchCities()"
+           @keyup.arrow-down="highlightNext()"
+           @keyup.arrow-up="highlightPrevious()"
+           @keyup.enter.prevent="selectCity()"
+           placeholder="Search for cities"
+           class="w-full min-w-[46rem] py-[13px] px-2 rounded-[.6rem] bg-light-gray text-[13px] leading-[18px] text-light-white text-light-text outline-none placeholder:text-light-white" />
+    <div x-show="cities.length > 0"
+         class="absolute left-0 right-0 overflow-y-auto text-[13px] leading-[18px] mt-2 text-light-white bg-light-gray gap-2 rounded-[.6rem]">
+        <template x-for="(city, index) in cities" :key="index">
+            <div :class="'flex flex-col p-2 rounded-[.6rem] cursor-pointer ' + (index === highlightedIndex ? 'bg-dark-white' : '')"
+                 @click="selectCity(index)">
+                <span x-text="city.city"></span>
+                <span x-text="city.country"></span>
+            </div>
+        </template>
+    </div>
+</div>

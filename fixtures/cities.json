@@ -1,0 +1,57 @@
+[
+  {
+    "model": "server.city",
+    "pk": 1,
+    "fields": {
+      "city": "Tokyo",
+      "country": "Japan",
+      "lat": 35.6897,
+      "lon": 139.6922,
+      "population": 37732000
+    }
+  },
+  {
+    "model": "server.city",
+    "pk": 2,
+    "fields": {
+      "city": "Moscow",
+      "country": "Russia",
+      "lat": 55.7558,
+      "lon": 37.6172,
+      "population": 17332000
+    }
+  },
+  {
+    "model": "server.city",
+    "pk": 3,
+    "fields": {
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "lat": 40.3953,
+      "lon": 49.8822,
+      "population": 2300500
+    }
+  },
+  {
+    "model": "server.city",
+    "pk": 4,
+    "fields": {
+      "city": "Moscow",
+      "country": "United States",
+      "lat": 46.7308,
+      "lon": -116.9986,
+      "population": 25616
+    }
+  },
+  {
+    "model": "server.city",
+    "pk": 5,
+    "fields": {
+      "city": "Paris",
+      "country": "France",
+      "lat": 48.8567,
+      "lon": 2.3522,
+      "population": 11060000
+    }
+  }
+]

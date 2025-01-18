@@ -1,0 +1,38 @@
+{% load json_filters %}
+<div class="w-full">
+    <div class="flex flex-col px-7 py-6 bg-light-gray rounded-3xl">
+        <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-4">AIR CONDITIONS</h1>
+        <div class="w-full grid grid-rows-2 grid-cols-2 gap-3">
+            <div class="flex">
+                <iconify-icon icon="mdi:thermometer" class="text-dark-white text-2xl mr-3"></iconify-icon>
+                <div class="flex flex-col">
+                    <span class="text-dark-white text-lg font-light mb-2">Real Feel</span>
+                    <span class="text-light-white text-2xl font-semibold">{{ data.current.apparent_temperature }}°</span>
+                </div>
+            </div>
+            <div class="flex ml-4">
+                <iconify-icon icon="fa-solid:wind" class="text-dark-white text-2xl mr-3"></iconify-icon>
+                <div class="flex flex-col">
+                    <span class="text-dark-white text-lg font-light mb-2">Wind</span>
+                    <span class="text-light-white text-2xl font-semibold">{{ data.current.wind_speed }} km/h</span>
+                </div>
+            </div>
+            <div class="flex">
+                <iconify-icon icon="ion:water" class="text-dark-white text-2xl mr-3"></iconify-icon>
+                <div class="flex flex-col">
+                    <span class="text-dark-white text-lg font-light mb-2">Chance of rain</span>
+                    <span class="text-light-white text-2xl font-semibold">{{ data.current.rain }}%</span>
+                </div>
+            </div>
+            <div class="flex ml-4">
+                <iconify-icon icon="fa-solid:sun" class="text-dark-white text-2xl mr-3"></iconify-icon>
+                <div class="flex flex-col">
+                    <span class="text-dark-white text-lg font-light mb-2">UV index</span>
+                    <span x-data="{ uv_index: {{ data.daily.uv_index|to_json }} }"
+                          x-text="uv_index[0] + '%'"
+                          class="text-light-white text-2xl font-semibold"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

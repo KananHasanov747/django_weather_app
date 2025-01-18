@@ -1,0 +1,71 @@
+services:
+  app:
+    # Defines the application service
+    build:
+      context: . # Build the image from the current directory
+      dockerfile: Dockerfile # Use the Dockerfile in the current directory for the build
+    # environment:
+    #   # Sets environment variables that the container will use
+    #   - HOME=/root # Set HOME variable to /root
+    image: django_weather_app
+    volumes:
+      - /app # M/app inside the container
+    ports:
+      # Exposes ports for access from outside the container
+      - "8000:8000" # Maps container's port 8000 to host's port 8000
+    networks:
+      - app_network
+    depends_on:
+      # Defines the dependency order for services; 'app' depends on 'db' and 'caching' in this case
+      # - db
+      - caching
+    command: uv run manage.py prod 0.0.0.0:8000 # The default command to run when the container starts
+    environment:
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL:-INFO}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-0.0.0.0}
+      DJANGO_CACHE_LOCATION: ${DJANGO_CACHE_LOCATION:-caching:11211}
+    env_file:
+      # Specify a file containing environment variables to be loaded into the container
+      - .env # Load environment variables from the .env file (if needed)
+
+  # db:
+  #   # Example database service (using PostgreSQL here)
+  #   image: postgres:17-alpine # Use the official PostgreSQL 17 image based on Alpine from Docker Hub
+  #   environment:
+  #     # Set environment variables for the database
+  #     POSTGRES_USER: example # Database username
+  #     POSTGRES_PASSWORD: example # Database password
+  #   volumes:
+  #     # Define volumes to persist database data
+  #     - db_data:/var/lib/postgresql/data # Store database data in a Docker volume
+  #   networks:
+  #     - app_network # Use a custom network for communication between services
+
+  # caching:
+  #   # Redis service for caching
+  #   image: redis:alpine # Use the official Redis image based on Alpine
+  #   volumes:
+  #     - redis_data:/data # Persist Redis data in a Docker volume (optional, depends on use case)
+  #   networks:
+  #     - app_network # Ensure that the caching service is on the same network
+
+  caching:
+    image: memcached:alpine
+    ports:
+      - "11211:11211"
+    command:
+      - --memory-limit=64
+    networks:
+      - app_network
+
+# volumes:
+#   # Declare volumes that are used for persistent data storage
+#   db_data: # This volume is used by the 'db' service to store Postgres data
+#   redis_data: # This volume is used by the 'caching' service to store Redis data (optional)
+
+networks:
+  # Define custom networks for services to communicate
+  app_network:
+    driver: bridge # Use the default 'bridge' network driver
+

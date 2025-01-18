@@ -1,0 +1,23 @@
+<form hx-post="{% url 'users:login' %}"
+      hx-target="#content"
+      hx-swap="innerHTML"
+      hx-replace-url="true"
+      class="flex flex-col gap-4 w-[280px]">
+    {% csrf_token %}
+    {% for field in form %}
+        <!-- prettier-ignore -->
+        <input type="text"
+               name="{{ field.name }}"
+               placeholder="{{ field.name|capfirst }}"
+               required
+               {% if field.name == "username" %}autocapitalize="none"{% endif %}
+               {% if field.name == "password" %}maxlength="150"{% endif %}
+               autocomplete="{% if field.name is 'username' %}{{ field.name }}{% else %}current-password{% endif %}"
+               id="{{ field.auto_id }}"
+               class="py-[14px] px-2 rounded-[.6rem] leading-[18px] outline-none bg-light-gray text-[13px] text-light-white text-light-text placeholder:text-light-white" />
+    {% endfor %}
+    <div class="w-full flex gap-2">
+        <button type="submit" class="btn btn-neutral flex-grow rounded-[.6rem]">Login</button>
+        <button type="button" class="btn btn-neutral flex-grow rounded-[.6rem]">SignUp</button>
+    </div>
+</form>

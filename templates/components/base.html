@@ -1,0 +1,12 @@
+<main id="root" class="flex bg-dark-gray w-[1317px] h-[792px]">
+    <div class="flex flex-grow relative my-9 mx-[30px]">
+        <c-sidebar.main />
+        <div id="content" class="flex w-full">
+            {% if request.resolver_match.view_name == "users:login" %}
+                <c-auth />
+            {% else %}
+                <c-weather />
+            {% endif %}
+        </div>
+    </div>
+</main>
