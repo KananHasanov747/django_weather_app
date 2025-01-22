@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from aiocache import caches
 
-load_dotenv()
+load_dotenv(os.getenv("ENV_NAME"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,9 +32,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", default="False") == "True"
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(
-    ","
-)
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -133,7 +131,7 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": f"django.core.cache.backends.{os.getenv("DJANGO_CACHE_BACKEND")}",
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": os.getenv("DJANGO_CACHE_LOCATION"),
     }
 }
@@ -285,7 +283,7 @@ LOGGING = {
     "loggers": {
         "": {  # Root logger
             "handlers": ["file", "console"],
-            "level": os.getenv("DJANGO_LOGLEVEL", default="INFO"),
+            "level": os.getenv("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
         "django": {

@@ -1,6 +1,6 @@
-import os
 import sys
 import subprocess
+
 from threading import Thread, Event
 
 from django.core.management.base import BaseCommand
@@ -17,13 +17,6 @@ class Command(BaseCommand):
             nargs="?",
             default="8000",
             help="Optional port number, or ipaddr:port",
-        )
-
-    def setup_environment(self):
-        """Sets up the environment before running the server"""
-        os.environ["DJANGO_DEBUG"] = "True"  # Enable debug mode in development mode
-        os.environ["DJANGO_SETTINGS_MODULE"] = (
-            "config.settings"  # Adjust this to your project settings
         )
 
     def run_subprocess(self, command, stop_event):
@@ -80,8 +73,6 @@ class Command(BaseCommand):
         return command
 
     def handle(self, *args, **options):
-        self.setup_environment()
-
         # Shared stop event to signal threads to terminate
         stop_event = Event()
 

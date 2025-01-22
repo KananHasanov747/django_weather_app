@@ -4,10 +4,13 @@ services:
     build:
       context: . # Build the image from the current directory
       dockerfile: Dockerfile # Use the Dockerfile in the current directory for the build
-    # environment:
-    #   # Sets environment variables that the container will use
-    #   - HOME=/root # Set HOME variable to /root
     image: django_weather_app
+    env_file:
+      # Specify a file containing environment variables to be loaded into the container
+      - .env.prod # Load environment variables from the .env.prod file (if needed)
+    # Sets environment variables that the container will use
+    environment:
+      DJANGO_CACHE_LOCATION: caching:11211
     volumes:
       - /app # M/app inside the container
     ports:
@@ -19,15 +22,7 @@ services:
       # Defines the dependency order for services; 'app' depends on 'db' and 'caching' in this case
       # - db
       - caching
-    command: uv run manage.py prod 0.0.0.0:8000 # The default command to run when the container starts
-    environment:
-      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL:-INFO}
-      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-0.0.0.0}
-      DJANGO_CACHE_LOCATION: ${DJANGO_CACHE_LOCATION:-caching:11211}
-    env_file:
-      # Specify a file containing environment variables to be loaded into the container
-      - .env # Load environment variables from the .env file (if needed)
+    command: uv run manage.py prod # The default command to run when the container starts
 
   # db:
   #   # Example database service (using PostgreSQL here)

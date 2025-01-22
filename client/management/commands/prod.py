@@ -1,4 +1,3 @@
-import os
 import sys
 import subprocess
 
@@ -16,12 +15,6 @@ class Command(BaseCommand):
             nargs="?",
             default="8000",
             help="Optional port number, or ipaddr:port",
-        )
-
-    def setup_environment(self):
-        os.environ["DJANGO_DEBUG"] = "False"  # disabling debug mode in production mode
-        os.environ["DJANGO_SETTINGS_MODULE"] = (
-            "config.settings"  # Adjust this to your project settings
         )
 
     def run_collectstatic(self):
@@ -50,7 +43,14 @@ class Command(BaseCommand):
         """Runs the Django server for production"""
         # Prepare the command to run
         addrport = options.pop("addrport")
-        command = [sys.executable, "manage.py", "runserver", addrport]
+        command = [
+            "daphne",
+            "config.asgi:application",  # Point to your ASGI application
+            "--bind",
+            "0.0.0.0",
+            "--port",
+            addrport.split(":")[-1],  # Extract port from addrport
+        ]
 
         # Add any positional arguments (args) to the command list
         if args:
@@ -71,7 +71,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            self.setup_environment()
             self.run_collectstatic()
             self.run_compress()
             self.run_server(*args, **options)
