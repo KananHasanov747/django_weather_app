@@ -14,10 +14,7 @@ ENV PYTHONUNBUFFERED=1
 # Install dependencies for building Rust packages (Alpine)
 RUN apk update && apk add --no-cache \
     curl \
-    build-base \
-    bash \
     gcc \
-    libgcc \
     libc-dev
 
 # Install Rust and Cargo
@@ -28,9 +25,6 @@ RUN rustup default stable && rustup update
 
 # Install uv package manager
 RUN pip install --no-cache-dir uv
-
-# Clean up build dependencies
-RUN apk del build-base
 
 # Set the working directory for the builder image
 WORKDIR /app
