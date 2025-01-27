@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 {% load static %}
 {% load compress %}
-<html lang="en-US" data-theme="dark">
+<html lang="en-US">
     <head>
         <title>Weather App</title>
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'favicon.ico' %}" />
+        {# TODO: attempt to remove {% compress %} for production #}
         {% compress js file vendored %}
             <script defer src="{% static 'vendored/alpinejs-3.x.x.min.js' %}"></script>
             <script src="{% static "vendored/htmx/2.0.4.min.js" %}"></script>
@@ -13,9 +17,9 @@
         {% compress css file base %}
             <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
         {% endcompress %}
-        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css"
-              rel="stylesheet"
-              type="text/css" />
+        {#
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
+        #}
     </head>
     <body hx-ext="preload" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <c-base />
