@@ -175,3 +175,4 @@ cython_debug/
 staticfiles/
 bruno-workflows/
 filtered_worldcities.csv
+tailwindcss-*

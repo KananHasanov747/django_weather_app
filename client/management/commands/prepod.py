@@ -1,3 +1,4 @@
+# staging (or pre-production)
 import sys
 import subprocess
 
@@ -25,6 +26,7 @@ class Command(BaseCommand):
             "collectstatic",  # collects static files into STATIC_ROOT for production
             "--no-input",  # doesn't prompt for input of any kind
             "--clear",  # removes all existing files from STATIC_ROOT before copying over the new ones
+            "--no-post-process",
         ]
         subprocess.run(command)
 
@@ -47,7 +49,7 @@ class Command(BaseCommand):
             "daphne",
             "config.asgi:application",  # Point to your ASGI application
             "--bind",
-            "0.0.0.0",
+            "localhost",
             "--port",
             addrport.split(":")[-1],  # Extract port from addrport
         ]
@@ -72,7 +74,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             self.run_collectstatic()
-            self.run_compress()
+            # self.run_compress()
             self.run_server(*args, **options)
         except KeyboardInterrupt:
             sys.exit(0)

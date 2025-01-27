@@ -39,7 +39,7 @@ class Command(BaseCommand):
     def run_tailwindcss(self):
         """Watches the Tailwind CSS"""
         command = [
-            "tailwindcss",
+            "./tailwindcss-4.0.0",
             "-i",
             "tailwind.css",
             "-o",
