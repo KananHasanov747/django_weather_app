@@ -174,5 +174,6 @@ cython_debug/
 # others
 .DS_Store
 bruno-workflows/
-staticfiles/
+# staticfiles/
 filtered_worldcities.csv
+tailwind*

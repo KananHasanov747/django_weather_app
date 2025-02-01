@@ -9,12 +9,15 @@ def main():
     # Set ENV_NAME based on the command
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        if command == "dev":
-            os.environ.setdefault("ENV_NAME", ".env.dev")
-        elif command == "prod":
-            os.environ.setdefault("ENV_NAME", ".env.prod")
+        if command == "preprod":
+            os.environ.setdefault("DJANGO_ENV_NAME", ".env.staging")
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.staging")
+        else:  # for development
+            os.environ.setdefault("DJANGO_ENV_NAME", ".env.dev")
+            os.environ.setdefault(
+                "DJANGO_SETTINGS_MODULE", "config.settings.development"
+            )
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

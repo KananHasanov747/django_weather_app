@@ -15,12 +15,30 @@ dependencies = [
     "channels>=4.2.0",
     "requests>=2.32.3",
     "django-htmx>=1.21.0",
-    "python-dotenv>=1.0.1",
-    "whitenoise>=6.8.2",
-    "django-debug-toolbar>=4.4.6",
     "aiocache[memcached]>=0.12.3",
-    "django-compressor>=4.5.1",
-    "django-minify-html>=1.11.0",
-    "pytailwindcss>=0.2.0",
     "pymemcache>=4.0.0",
+    "django-environ>=0.12.0",
+    "loguru>=0.7.3",
+    "django-compressor>=4.5.1",
+    "whitenoise[brotli]>=6.8.2",
+]
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=4.4.6",
+    "faker>=33.3.1",
+    "pytest-django>=4.9.0",
+    "pytest-asyncio>=0.25.2",
+]
+
+[too.uv]
+default-groups =  ["dev"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.production"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
 ]

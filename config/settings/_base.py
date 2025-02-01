@@ -12,27 +12,28 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 import sys
+import environ
 
-from dotenv import load_dotenv
 from pathlib import Path
+from loguru import logger
 from aiocache import caches
 
-load_dotenv(os.getenv("ENV_NAME"))
+env = environ.Env(
+    DJANGO_LOG_LEVEL=(str, "INFO"), DJANGO_ALLOWED_HOSTS=(list, ["localhost"])
+)
+environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", default="False") == "True"
-
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+TESTING = "test" in sys.argv
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -54,13 +55,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # compressors
-    "compressor",
-    "django_minify_html",
     # plugins and tools
+    "compressor",
     "django_htmx",
     "django_cotton",
-    # apps
+]
+
+PROJECT_APPS = [
     "server",
     "users",
     "client",
@@ -76,24 +77,9 @@ MIDDLEWARE = [
     "server.middleware.RestrictDirectUrlAccessMiddleware",  # restrict direct access to api endpoint
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.middleware.MinifyHTMLMiddleware",
     "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
-    "django_minify_html.middleware.MinifyHtmlMiddleware",  # from 'django-minify-html' library
 ]
-
-
-# Django debug toolbar
-
-TESTING = "test" in sys.argv
-
-if not TESTING:
-    INSTALLED_APPS = [
-        *INSTALLED_APPS,
-        "debug_toolbar",
-    ]
-    MIDDLEWARE = [
-        *MIDDLEWARE,
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ]
 
 ROOT_URLCONF = "config.urls"
 
@@ -101,11 +87,12 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": False,
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -132,7 +119,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": os.getenv("DJANGO_CACHE_LOCATION"),
+        "LOCATION": env("DJANGO_CACHE_LOCATION"),
     }
 }
 
@@ -179,6 +166,13 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Media files
+
+MEDIA_URL = "media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
@@ -194,16 +188,13 @@ STATICFILES_FINDERS = [
     "compressor.finders.CompressorFinder",
 ]
 
-STORAGE = {
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-
-# Compressor
-
-COMPRESS_ENABLED = not DEBUG
 
 COMPRESS_CSS_HASHING_METHOD = "content"
 
@@ -216,7 +207,6 @@ COMPRESS_FILTERS = {
         "compressor.filters.jsmin.JSMinFilter",
     ],
 }
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -231,65 +221,90 @@ COTTON_DIR = "components"
 
 # Logging
 
-# LOGGING_CONFIG = False
+LOGGING_CONFIG = None
 
 LOGGING = {
-    "version": 1,
-    # The version number of our log
-    "disable_existing_loggers": False,
-    "formatters": {
-        # Simple format for console logs
-        "simple": {
-            "()": "colorlog.ColoredFormatter",
-            "format": "{log_color}{levelname} [{name}] - {message}",
-            "style": "{",
-            "log_colors": {
-                "DEBUG": "white",
-                "INFO": "green",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "bold_red",
-            },
-        },
-        # verbose format for console logs
-        "verbose": {
-            "()": "colorlog.ColoredFormatter",
-            "format": "{log_color}{asctime} {levelname} [{name}] - {message}",
-            "style": "{",
-            "log_colors": {
-                "DEBUG": "white",
-                "INFO": "green",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "bold_red",
-            },
-        },
-    },
-    "handlers": {
-        # A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
-        "file": {
-            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "WARNING.log",
-            "formatter": "verbose",
-        },
-        # A handler for all other logs, and will be used to print logs to console
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "": {  # Root logger
-            "handlers": ["file", "console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", default="INFO"),
-            "propagate": True,
-        },
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-    },
+    "handlers": [
+        dict(
+            sink=sys.stderr,
+            colorize=True,
+            format="<fg #3e424b>{time:YYYY-MM-D HH:mm:ss,SSS!UTC}</fg #3e424b> | {message}",
+            filter=lambda record: record["module"] == "asgi",
+            backtrace=False,
+            diagnose=False,
+            level="INFO",
+        ),
+        dict(
+            sink=sys.stderr,
+            colorize=True,
+            format="<green>{time:YYYY-MM-D HH:mm:ss,SSS!UTC}</green> {level} {message} {extra}",
+            filter=lambda record: record["name"].endswith(".views"),
+            backtrace=False,
+            diagnose=False,
+        ),
+    ],
 }
+
+logger.configure(**LOGGING)
+
+# TODO: replace logging with loguru
+# LOGGING = {
+#     "version": 1,
+#     # The version number of our log
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         # Simple format for console logs
+#         "simple": {
+#             "()": "colorlog.ColoredFormatter",
+#             "format": "{log_color}{levelname} [{name}] - {message}",
+#             "style": "{",
+#             "log_colors": {
+#                 "DEBUG": "white",
+#                 "INFO": "green",
+#                 "WARNING": "yellow",
+#                 "ERROR": "red",
+#                 "CRITICAL": "bold_red",
+#             },
+#         },
+#         # verbose format for console logs
+#         "verbose": {
+#             "()": "colorlog.ColoredFormatter",
+#             "format": "{log_color}{asctime} {levelname} [{name}] - {message}",
+#             "style": "{",
+#             "log_colors": {
+#                 "DEBUG": "white",
+#                 "INFO": "green",
+#                 "WARNING": "yellow",
+#                 "ERROR": "red",
+#                 "CRITICAL": "bold_red",
+#             },
+#         },
+#     },
+#     "handlers": {
+#         # A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
+#         "file": {
+#             "level": env("DJANGO_LOG_LEVEL"),  # DJANGO_LOG_LEVEL=WARNING
+#             "class": "logging.FileHandler",
+#             "filename": BASE_DIR / "WARNING.log",
+#             "formatter": "verbose",
+#         },
+#         # A handler for all other logs, and will be used to print logs to console
+#         "console": {
+#             "level": "INFO",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "": {  # Root logger
+#             "handlers": ["file", "console"],
+#             "level": env("DJANGO_LOG_LEVEL"),  # DJANGO_LOG_LEVEL=INFO
+#             "propagate": True,
+#         },
+#         "django": {
+#             "handlers": ["console"],
+#             "level": "INFO",
+#             "propagate": True,
+#         },
+#     },
+# }

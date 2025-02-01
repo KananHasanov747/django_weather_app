@@ -10,9 +10,10 @@ services:
       - .env.prod # Load environment variables from the .env.prod file (if needed)
     # Sets environment variables that the container will use
     environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
       DJANGO_CACHE_LOCATION: caching:11211
-    volumes:
-      - /app # M/app inside the container
+    # volumes:
+    #   - static_volume:/app/staticfiles:rw # NGINX serves static (rw -> read/write)
     ports:
       # Exposes ports for access from outside the container
       - "8000:8000" # Maps container's port 8000 to host's port 8000
@@ -22,7 +23,12 @@ services:
       # Defines the dependency order for services; 'app' depends on 'db' and 'caching' in this case
       # - db
       - caching
-    command: uv run manage.py prod # The default command to run when the container starts
+    command: >
+      sh -c "
+      uv run --no-dev manage.py migrate; 
+      uv run --no-dev -m sqlite3 db.sqlite3 < weather_cities_dump.sql > /dev/null 2>&1; 
+      uv run --no-dev daphne config.asgi:application --bind 0.0.0.0 --port 8000; 
+      "
 
   # db:
   #   # Example database service (using PostgreSQL here)
@@ -45,6 +51,18 @@ services:
   #   networks:
   #     - app_network # Ensure that the caching service is on the same network
 
+  # nginx:
+  #   image: nginx:stable-alpine
+  #   ports:
+  #     - "8080:80" # host:container
+  #   volumes:
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
+  #     - static_volume:/usr/share/nginx/html/static
+  #   networks:
+  #     - app_network
+  #   depends_on:
+  #     - app
+
   caching:
     image: memcached:alpine
     ports:
@@ -58,9 +76,11 @@ services:
 #   # Declare volumes that are used for persistent data storage
 #   db_data: # This volume is used by the 'db' service to store Postgres data
 #   redis_data: # This volume is used by the 'caching' service to store Redis data (optional)
+# static_volume: # Declare volume for static files
 
 networks:
   # Define custom networks for services to communicate
   app_network:
     driver: bridge # Use the default 'bridge' network driver
-
+    labels:
+      com.docker.compose.network: app_network

@@ -1,0 +1,20 @@
+from ._base import *
+
+DEBUG = False
+
+INSTALLED_APPS += PROJECT_APPS
+
+ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Compressor
+
+COMPRESS_ENABLED = not DEBUG
+
+COMPRESS_OFFLINE = not DEBUG
+
+
+# Whitenoise cache policy
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0  # 1 year
