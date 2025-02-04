@@ -1,7 +1,8 @@
-<form hx-post="{% url 'users:login' %}"
+<form id="login"
+      hx-post="{% url 'users:login' %}"
       hx-target="#content"
       hx-swap="innerHTML"
-      hx-replace-url="true"
+      hx-push-url="true"
       class="flex flex-col gap-4 w-[280px]">
     {% csrf_token %}
     {% for field in form %}

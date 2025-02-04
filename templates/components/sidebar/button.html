@@ -1,24 +1,24 @@
-<!--BUG: make variables dynamic dynamic-->
 <button
     {{
     attrs
     }}
     type="button"
     x-data="{
-    location: window.location.pathname === '{{ url }}',
-    activebtn: 'font-normal',
-    init() {
-    this.$watch('location', value => {
-    this.activebtn = location ? 'font-bold' : 'font-normal'
-    })
+    activebtn: window.location.pathname === '{{ url }}' ? 'font-bold' : 'font-normal',
+    updateActive() {
+    this.activebtn = (window.location.pathname === '{{ url }}');
     }
     }"
-    :class="'flex flex-col items-center mt-8 text-light-white ' + activebtn"
+    x-init="() => {
+    window.addEventListener('htmx:afterSwap', () => this.updateActive());
+    this.$watch('activebtn', () => {});  // Force reactivity
+    }"
+    :class="'flex flex-col items-center mt-8 text-light-white cursor-pointer ' + activebtn"
     hx-get="{{ url }}"
     hx-target="#content"
     hx-swap="innerHTML"
     hx-trigger="click"
-    hx-replace-url="true"
+    hx-push-url="true"
     >
     <iconify-icon icon="{{ icon }}" class="text-xl mb-3"></iconify-icon>
     <span class="text-sm">{{ text }}</span>

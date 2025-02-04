@@ -1,3 +1,4 @@
+{% load static %}
 <div class="w-full">
     <div class="flex px-11 py-7">
         <div class="flex-grow">
@@ -11,9 +12,7 @@
             </div>
         </div>
         <img class="h-[194px]"
-             x-data="{ isDay: {{ data.current.is_day|lower }}, weatherCode: {{ data.current.weather_code }} }"
-             :src="isDay ? forecast_icons[weatherCode].day : forecast_icons[weatherCode].night"
-             :alt="forecast_icons[weatherCode].description" />
-        <!--<iconify-icon icon="wi:night-alt-cloudy" height="194px" width="194px"></iconify-icon>-->
+             src="{% static data.current.icon_url %}"
+             alt="{{ data.current.description }}" />
     </div>
 </div>

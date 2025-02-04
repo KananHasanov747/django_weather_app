@@ -1,31 +1,34 @@
 <!DOCTYPE html>
 {% load static %}
-{% load compress %}
 <html lang="en-US">
     <head>
         <title>Weather App</title>
         <link rel="shortcut icon"
               type="image/png"
               href="{% static 'favicon.ico' %}" />
-        {# TODO: attempt to remove {% compress %} for production #}
-        {% compress js file vendored %}
-            <script defer src="{% static 'vendored/alpinejs-3.x.x.min.js' %}"></script>
-            <script src="{% static "vendored/htmx/2.0.4.min.js" %}"></script>
-            <script src="{% static "vendored/htmx/preload@2.1.0.min.js" %}"></script>
-            <script src="{% static "vendored/iconify-icon-2.2.0.min.js" %}"></script>
-        {% endcompress %}
-        {% compress css file base %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-        {% endcompress %}
-        {#
-        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
-        #}
+        <script defer src="{% static 'vendored/alpinejs-3.x.x.min.js' %}"></script>
+        <script src="{% static "vendored/htmx/2.0.4.min.js" %}"></script>
+        <script src="{% static "vendored/htmx/preload@2.1.0.min.js" %}"></script>
+        <script src="{% static "vendored/iconify-icon-2.2.0.min.js" %}"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     </head>
     <body hx-ext="preload" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <c-base />
-        {% compress js file body %}
-            <script src="{% static 'js/forecast_icons.js' %}"></script>
-            <script src="{% static "js/search.js" %}"></script>
-        {% endcompress %}
+        <script src="{% static "js/search.js" %}"></script>
+        <script>
+              document.addEventListener("DOMContentLoaded", function () {
+                // Handle browser back/forward navigation
+                window.addEventListener("popstate", function (event) {
+                  // Reload main content from current URL
+                  htmx.ajax("GET", window.location.href, {
+                    target: "#content",
+                    swap: "innerHTML",
+                    headers: {
+                      "HX-Request": "true", // Force partial responses
+                    },
+                  });
+                });
+              });
+        </script>
     </body>
 </html>

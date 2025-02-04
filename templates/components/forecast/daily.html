@@ -1,30 +1,31 @@
-{% load json_filters %}
+{# TODO: make full REST API on server side (without js) #}
+{% load static client_filters %}
 <div class="flex flex-col w-full p-9 bg-light-gray rounded-3xl"
-     x-data="{ daily: {{ data.daily|to_json }} }">
+    {#x-data="{ daily: {{ data.daily|to_json }} }"#}
+    >
     <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-5">7-DAY FORECAST</h1>
     <div class="h-full grid grid-rows-7 gap-auto">
-        <template x-for="(i, index) in daily.time" :key="index">
+        {% for time in data.daily.time %}
             <div class="w-full">
-                <div x-show="index !== 0" class="flex bg-gray-600 w-full h-[.5px]"></div>
+                {% if not forloop.first %}<div class="flex bg-gray-600 w-full h-[.5px]"></div>{% endif %}
                 <div class="grid grid-cols-3 items-center w-full">
-                    <span x-data="{ day_of_week: daily.days_of_week[index] }"
-                          x-text="index !== 0 ? 'Today' : day_of_week"
-                          class="text-base text-dark-white font-light"></span>
+                    <span class="text-base text-dark-white font-light">
+                        {% if forloop.first %}
+                            Today
+                        {% else %}
+                            {{ data.daily.days_of_week|index:forloop.counter0 }}
+                        {% endif %}
+                    </span>
                     <div class="px-3">
-                        <img x-data="{ weatherCode: daily.weather_code[index] }"
-                             :src="forecast_icons[weatherCode].day"
-                             :alt="forecast_icons[weatherCode].description" />
+                        <img src="{% static data.daily.icon_url|index:forloop.counter0 %}"
+                             alt="{{ data.daily.description|index:forloop.counter0 }}" />
                     </div>
                     <div class="text-right text-base text-dark-white">
-                        <span x-data="{ temp_max: daily.temperature_max[index] }"
-                              x-text="temp_max + '°'"
-                              class="text-light-white font-semibold"></span>/
-                        <span x-data="{ temp_min: daily.temperature_min[index] }"
-                              x-text="temp_min + '°'"
-                              class="text-dark-white font-light"></span>
+                        <span class="text-light-white font-semibold">{{ data.daily.temperature_max|index:forloop.counter0 }}°</span>/
+                        <span class="text-dark-white font-light">{{ data.daily.temperature_min|index:forloop.counter0 }}°</span>
                     </div>
                 </div>
             </div>
-        </template>
+        {% endfor %}
     </div>
 </div>

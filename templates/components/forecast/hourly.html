@@ -1,26 +1,21 @@
-{% load json_filters %}
-<div class="flex w-full" x-data="{ hourly: {{ data.hourly|to_json }} }">
+{% load static client_filters %}
+<div class="flex w-full">
     <div class="flex flex-col w-full px-7 py-6 bg-light-gray rounded-3xl">
         <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-4">TODAY'S FORECAST</h1>
         <div class="w-full grid grid-cols-6">
-            <template x-for="(i, index) in hourly.date" :key="index">
+            {% for time in data.hourly.date %}
                 <div class="flex">
-                    <div x-show="index !== 0" class="flex bg-slate-600 h-full w-[0.5px]"></div>
+                    {% if not forloop.first %}<div class="flex bg-slate-600 h-full w-[0.5px]"></div>{% endif %}
                     <div class="flex flex-col items-center">
-                        <span x-data="{ time: new Date(hourly.date[index]).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) }"
-                              x-text="time"
-                              class="text-sm text-dark-white font-semibold"></span>
+                        <span class="text-sm text-dark-white font-semibold">{{ data.hourly.date|index:forloop.counter0 }}</span>
                         <span class="px-8">
-                            <img x-data="{ isDay: hourly.is_day[index], weatherCode: hourly.weather_code[index] }"
-                                 :src="isDay ? forecast_icons[weatherCode].day : forecast_icons[weatherCode].night"
-                                 :alt="forecast_icons[weatherCode].description" />
+                            <img src="{% static data.hourly.icon_url|index:forloop.counter0 %}"
+                                 alt="{{ data.hourly.description|index:forloop.counter0 }}" />
                         </span>
-                        <span x-data="{ temp: hourly.temperature[index] }"
-                              x-text="temp + '°'"
-                              class="text-2xl text-light-white"></span>
+                        <span class="text-2xl text-light-white">{{ data.hourly.temperature|index:forloop.counter0 }}°</span>
                     </div>
                 </div>
-            </template>
+            {% endfor %}
         </div>
     </div>
 </div>
