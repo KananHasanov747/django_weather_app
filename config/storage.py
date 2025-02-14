@@ -2,11 +2,15 @@ import os
 import json
 import shutil
 from io import BytesIO
-from PIL import Image
 from django.core.files.base import ContentFile
 from servestatic.storage import (
     CompressedManifestStaticFilesStorage as BaseManifestStaticFilesStorage,
 )
+
+try:
+    from PIL import Image
+except ImportError:
+    pass
 
 
 class CompressedManifestStaticFilesStorage(BaseManifestStaticFilesStorage):

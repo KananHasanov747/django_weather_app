@@ -15,12 +15,12 @@ dependencies = [
     "channels>=4.2.0",
     "requests>=2.32.3",
     "django-htmx>=1.21.0",
-    "aiocache[memcached]>=0.12.3",
-    "pymemcache>=4.0.0",
     "django-environ>=0.12.0",
     "loguru>=0.7.3",
-    "django-compressor>=4.5.1",
-    "whitenoise[brotli]>=6.8.2",
+    "servestatic[brotli]==3.0.0",
+    "rjsmin>=1.2.3",
+    "pyopenssl>=24.3.0",
+    "psycopg[binary]>=3.2.4",
 ]
 
 [dependency-groups]
@@ -29,6 +29,8 @@ dev = [
     "faker>=33.3.1",
     "pytest-django>=4.9.0",
     "pytest-asyncio>=0.25.2",
+    "pillow>=11.1.0",
+    "django-browser-reload>=1.18.0",
 ]
 
 [too.uv]

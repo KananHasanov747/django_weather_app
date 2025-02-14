@@ -1,8 +1,48 @@
 import aiohttp
 import asyncio
-from .models import City
 
 from datetime import datetime, time
+from dataclasses import dataclass
+
+from .models import City
+
+
+@dataclass
+class ForecastIcon:
+    description: str
+    day: str
+    night: str
+
+
+@dataclass
+class CurrentWeather:
+    temperature: float
+    apparent_temperature: float
+    icon_url: str
+    description: str
+    rain: float
+    wind_speed: float
+
+
+@dataclass
+class HourlyWeather:
+    date: str
+    is_day: bool
+    icon_url: str
+    description: str
+    temperature: float
+    humidity: float
+
+
+@dataclass
+class DailyWeather:
+    time: str
+    day_of_week: str
+    icon_url: str
+    description: str
+    temperature_max: float
+    temperature_min: float
+    uv_index: float
 
 
 class WeatherAPI:
@@ -213,104 +253,81 @@ class WeatherAPI:
         hourly = response.get("hourly", None)
         daily = response.get("daily", None)
 
-        days_of_week = [
-            datetime.strptime(dt, "%Y-%m-%d").strftime("%A") for dt in daily.get("time")
-        ]
+        current_weather = CurrentWeather(
+            temperature=round(current.get("temperature_2m", None)),
+            apparent_temperature=round(current.get("apparent_temperature", None)),
+            # "is_day": bool(current.get("is_day", None)),
+            icon_url=WeatherAPI.forecast_icons[current.get("weather_code", None)][
+                "day" if bool(current.get("is_day", None)) else "night"
+            ],
+            description=WeatherAPI.forecast_icons[current.get("weather_code", None)][
+                "description"
+            ],
+            # precipitation=current.get("precipitation", None),
+            rain=round(current.get("rain", None), 2),
+            wind_speed=round(current.get("wind_speed_10m", None), 2),
+            # "wind_direction": round(current.get("wind_direction_10m", None)),
+        )
 
-        hourly_date = []
-        hourly_is_day = []
-        hourly_icon_url = []
-        hourly_desc = []
+        hourly_weathers = []
+
         for w_code, dt in zip(
             hourly.get("weather_code")[:24:4],
             hourly.get("time")[:24:4],
         ):
-            hourly_date.append(
-                datetime.strptime(dt, "%Y-%m-%dT%H:%M").strftime("%H:%M")
-            )
-            hourly_is_day.append(
-                True
-                if time(5, 0)
-                <= datetime.strptime(dt, "%Y-%m-%dT%H:%M").time()
-                < time(20, 0)
-                else False
-            )
-            hourly_icon_url.append(
-                WeatherAPI.forecast_icons[w_code][
-                    (
-                        "day"
+            hourly_weathers.append(
+                HourlyWeather(
+                    date=datetime.strptime(dt, "%Y-%m-%dT%H:%M").strftime("%H:%M"),
+                    is_day=(
+                        True
                         if time(5, 0)
                         <= datetime.strptime(dt, "%Y-%m-%dT%H:%M").time()
                         < time(20, 0)
-                        else "night"
-                    )
-                ],
-            )
-            hourly_desc.append(
-                WeatherAPI.forecast_icons[w_code]["description"],
+                        else False
+                    ),
+                    icon_url=WeatherAPI.forecast_icons[w_code][
+                        (
+                            "day"
+                            if time(5, 0)
+                            <= datetime.strptime(dt, "%Y-%m-%dT%H:%M").time()
+                            < time(20, 0)
+                            else "night"
+                        )
+                    ],
+                    description=WeatherAPI.forecast_icons[w_code]["description"],
+                    temperature=round(hourly.get("temperature_2m", None)[0]),
+                    humidity=hourly.get("relative_humidity_2m", None)[0],
+                )
             )
 
-        daily_icon_url = []
-        daily_desc = []
-        daily_temp_max = []
-        daily_temp_min = []
-        daily_uv_index = []
-        for w_code, max, min, uv in zip(
+        daily_weathers = []
+        for dt, w_code, max, min, uv in zip(
+            daily.get("time", None),
             daily.get("weather_code", None),
             daily.get("temperature_2m_max", None),
             daily.get("temperature_2m_min", None),
             daily.get("uv_index_max", None),
         ):
-            daily_icon_url.append(WeatherAPI.forecast_icons[w_code]["day"])
-            daily_desc.append(WeatherAPI.forecast_icons[w_code]["description"])
-            daily_temp_max.append(round(max))
-            daily_temp_min.append(round(min))
-            daily_uv_index.append(round(uv))
+            daily_weathers.append(
+                DailyWeather(
+                    time=dt,
+                    day_of_week=datetime.strptime(dt, "%Y-%m-%d").strftime("%A"),
+                    icon_url=WeatherAPI.forecast_icons[w_code]["day"],
+                    description=WeatherAPI.forecast_icons[w_code]["description"],
+                    temperature_max=round(max),
+                    temperature_min=round(min),
+                    # sunrise=daily.get("sunrise", None),
+                    # sunset=daily.get("sunset", None),
+                    uv_index=round(uv),
+                )
+            )
 
         return {
             "city": self.city,
             "country": self.country,
             "latitude": self.lat,
             "longitude": self.lon,
-            "current": {
-                "temperature": round(current.get("temperature_2m", None)),
-                "apparent_temperature": round(
-                    current.get("apparent_temperature", None)
-                ),
-                # "is_day": bool(current.get("is_day", None)),
-                "icon_url": WeatherAPI.forecast_icons[
-                    current.get("weather_code", None)
-                ]["day" if bool(current.get("is_day", None)) else "night"],
-                "description": WeatherAPI.forecast_icons[
-                    current.get("weather_code", None)
-                ],
-                "precipitation": current.get("precipitation", None),
-                "rain": round(current.get("rain", None), 2),
-                # "weather_code": current.get("weather_code", None),
-                "wind_speed": round(current.get("wind_speed_10m", None), 2),
-                # "wind_direction": round(current.get("wind_direction_10m", None)),
-            },
-            "hourly": {
-                "date": hourly_date,
-                "is_day": hourly_is_day,
-                "icon_url": hourly_icon_url,
-                "description": hourly_desc,
-                "temperature": [
-                    round(_) for _ in hourly.get("temperature_2m", None)[:24:4]
-                ],
-                "humidity": hourly.get("relative_humidity_2m", None)[:24:4],
-                # "weather_code": hourly.get("weather_code")[:24:4],
-            },
-            "daily": {
-                "time": daily.get("time"),
-                "days_of_week": days_of_week,
-                "icon_url": daily_icon_url,
-                "description": daily_desc,
-                # "weather_code": daily.get("weather_code", None),
-                "temperature_max": daily_temp_max,
-                "temperature_min": daily_temp_min,
-                # "sunrise": daily.get("sunrise", None),
-                # "sunset": daily.get("sunset", None),
-                "uv_index": daily_uv_index,
-            },
+            "current": current_weather,
+            "hourly": hourly_weathers,
+            "daily": daily_weathers,
         }

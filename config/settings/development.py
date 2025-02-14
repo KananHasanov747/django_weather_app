@@ -5,7 +5,7 @@ DEBUG = True
 INSTALLED_APPS.insert(
     INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic.runserver_nostatic"
 )
-INSTALLED_APPS += [*PROJECT_APPS]
+INSTALLED_APPS += ["django_browser_reload", *PROJECT_APPS]
 
 ALLOWED_HOSTS = ["localhost", "weather.com"]
 

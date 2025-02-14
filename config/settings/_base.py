@@ -17,12 +17,12 @@ import logging
 
 from pathlib import Path
 from loguru import logger
-from aiocache import caches
 
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost"]),
     DJANGO_POSTGRES=(bool, False),
+    NGINX_ENABLED=(bool, False),
 )
 environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # plugins and tools
-    "django_browser_reload",
     "django_htmx",
     "django_cotton",
 ]
@@ -141,19 +140,10 @@ if env("DJANGO_POSTGRES"):
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": env("DJANGO_CACHE_LOCATION"),
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "database_cache",  # table name
     }
 }
-
-caches.set_config(
-    {
-        "default": {
-            "cache": "aiocache.SimpleMemoryCache",
-            "serializer": {"class": "aiocache.serializers.JsonSerializer"},
-        },
-    }
-)
 
 FIXTURE_DIRS = (BASE_DIR / "fixtures",)
 
