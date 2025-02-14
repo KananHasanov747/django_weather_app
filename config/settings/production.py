@@ -6,17 +6,26 @@ INSTALLED_APPS.extend(PROJECT_APPS)
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = False
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
-# Compressor
+# ServeStatic (ASGI-versioned WhiteNoise)
 
-COMPRESS_ENABLED = not DEBUG
+if not env("NGINX_ENABLED"):
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.middleware.security.SecurityMiddleware"),
+        "config.middleware.CustomServeStaticMiddleware",
+    )
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
-COMPRESS_OFFLINE = not DEBUG
 
-
-# Whitenoise cache policy
-WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0  # 1 year
+# ServeStatic cache policy
+SERVESTATIC_MAX_AGE = 31536000  # 1 year

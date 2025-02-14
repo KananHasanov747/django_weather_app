@@ -13,13 +13,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import sys
 import environ
+import logging
 
 from pathlib import Path
 from loguru import logger
 from aiocache import caches
 
 env = environ.Env(
-    DJANGO_LOG_LEVEL=(str, "INFO"), DJANGO_ALLOWED_HOSTS=(list, ["localhost"])
+    DJANGO_LOG_LEVEL=(str, "INFO"),
+    DJANGO_ALLOWED_HOSTS=(list, ["localhost"]),
+    DJANGO_POSTGRES=(bool, False),
 )
 environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
@@ -56,20 +59,19 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # plugins and tools
-    "compressor",
+    "django_browser_reload",
     "django_htmx",
     "django_cotton",
 ]
 
 PROJECT_APPS = [
-    "server",
-    "users",
-    "client",
+    "server.apps.ServerConfig",
+    "users.apps.UsersConfig",
+    "client.apps.ClientConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # from 'whitenoise' library
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -96,13 +98,23 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "debug": True,
+            "builtins": [  # built-in library (tags and filters) without first calling {% load %} tag
+                "config.templatetags.filters",  # custom template filters
+            ],
+            "loaders": [
+                (
+                    "django.template.loaders.cached.Loader",
+                    [
+                        "django.template.loaders.filesystem.Loader",
+                        "django.template.loaders.app_directories.Loader",
+                    ],
+                )
+            ],
         },
     },
 ]
 
 ASGI_APPLICATION = "config.asgi.application"
-
 WSGI_APPLICATION = "config.wsgi.application"
 
 
@@ -115,6 +127,17 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+if env("DJANGO_POSTGRES"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DJANGO_POSTGRES_DB"),
+            "USER": env("DJANGO_POSTGRES_USER"),
+            "PASSWORD": env("DJANGO_POSTGRES_PASSWORD"),
+            "HOST": env("DJANGO_POSTGRES_HOST"),
+        }
+    }
 
 CACHES = {
     "default": {
@@ -166,17 +189,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Media files
-
-MEDIA_URL = "media/"
-
-MEDIA_ROOT = BASE_DIR / "media"
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -185,28 +201,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "compressor.finders.CompressorFinder",
 ]
 
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
-
-COMPRESS_CSS_HASHING_METHOD = "content"
-
-COMPRESS_FILTERS = {
-    "css": [
-        "compressor.filters.css_default.CssAbsoluteFilter",
-        "compressor.filters.cssmin.rCSSMinFilter",
-    ],
-    "js": [
-        "compressor.filters.jsmin.JSMinFilter",
-    ],
-}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -223,88 +219,54 @@ COTTON_DIR = "components"
 
 LOGGING_CONFIG = None
 
-LOGGING = {
-    "handlers": [
-        dict(
-            sink=sys.stderr,
-            colorize=True,
-            format="<fg #3e424b>{time:YYYY-MM-D HH:mm:ss,SSS!UTC}</fg #3e424b> | {message}",
-            filter=lambda record: record["module"] == "asgi",
-            backtrace=False,
-            diagnose=False,
-            level="INFO",
-        ),
-        dict(
-            sink=sys.stderr,
-            colorize=True,
-            format="<green>{time:YYYY-MM-D HH:mm:ss,SSS!UTC}</green> {level} {message} {extra}",
-            filter=lambda record: record["name"].endswith(".views"),
-            backtrace=False,
-            diagnose=False,
-        ),
-    ],
+# FIX: modify the logging configuration
+
+
+# === Step 1. Intercept standard logging and forward to Loguru ===
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            level = logger.level(record.levelname).name
+        except Exception:
+            level = record.levelno
+        frame, depth = logging.currentframe(), 2
+        while frame and frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
+
+
+# Remove existing standard logging handlers and install our intercept.
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+
+# === Step 2. Configure Loguru sinks to mimic Django logging ===
+
+# Clear any existing Loguru sinks.
+logger.remove()
+
+colors = {
+    "default": ("green"),
+    "wsgi/asgi": ("fg #3e424b"),
 }
 
-logger.configure(**LOGGING)
+# File sink (similar to Django's file handler) writes WARNING and above to a file.
+logger.add(
+    "WARNING.log",
+    level="WARNING",
+    colorize=False,  # File logs typically do not need color.
+    format="{time:YYYY-MM-DTHH:mm:ss,SSS!UTC} {level} [{name}] - {message}",
+    backtrace=False,
+    diagnose=False,
+)
 
-# TODO: replace logging with loguru
-# LOGGING = {
-#     "version": 1,
-#     # The version number of our log
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         # Simple format for console logs
-#         "simple": {
-#             "()": "colorlog.ColoredFormatter",
-#             "format": "{log_color}{levelname} [{name}] - {message}",
-#             "style": "{",
-#             "log_colors": {
-#                 "DEBUG": "white",
-#                 "INFO": "green",
-#                 "WARNING": "yellow",
-#                 "ERROR": "red",
-#                 "CRITICAL": "bold_red",
-#             },
-#         },
-#         # verbose format for console logs
-#         "verbose": {
-#             "()": "colorlog.ColoredFormatter",
-#             "format": "{log_color}{asctime} {levelname} [{name}] - {message}",
-#             "style": "{",
-#             "log_colors": {
-#                 "DEBUG": "white",
-#                 "INFO": "green",
-#                 "WARNING": "yellow",
-#                 "ERROR": "red",
-#                 "CRITICAL": "bold_red",
-#             },
-#         },
-#     },
-#     "handlers": {
-#         # A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
-#         "file": {
-#             "level": env("DJANGO_LOG_LEVEL"),  # DJANGO_LOG_LEVEL=WARNING
-#             "class": "logging.FileHandler",
-#             "filename": BASE_DIR / "WARNING.log",
-#             "formatter": "verbose",
-#         },
-#         # A handler for all other logs, and will be used to print logs to console
-#         "console": {
-#             "level": "INFO",
-#             "class": "logging.StreamHandler",
-#             "formatter": "verbose",
-#         },
-#     },
-#     "loggers": {
-#         "": {  # Root logger
-#             "handlers": ["file", "console"],
-#             "level": env("DJANGO_LOG_LEVEL"),  # DJANGO_LOG_LEVEL=INFO
-#             "propagate": True,
-#         },
-#         "django": {
-#             "handlers": ["console"],
-#             "level": "INFO",
-#             "propagate": True,
-#         },
-#     },
-# }
+# Console sink (similar to Django's console handler) for general logs (INFO and above).
+logger.add(
+    sys.stderr,
+    level="INFO",
+    colorize=True,
+    format="<green>{time:YYYY-MM-DTHH:mm:ss,SSS!UTC}Z</green> {level} {file}:{line} {message}",
+    backtrace=False,
+    diagnose=False,
+)

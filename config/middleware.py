@@ -1,5 +1,11 @@
+import os
 import re
 import rjsmin
+import json
+
+from servestatic.middleware import ServeStaticMiddleware
+
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -12,6 +18,7 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
         return response
 
     def minify_html(self, html):
+        # Divides non-sript and style types into segments
         segments = re.split(
             r"(<script.*?>.*?</script>|<style.*?>.*?</style>)",
             html,
@@ -51,3 +58,53 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
         # Flatten into one line and remove extra whitespace
         html_part = re.sub(r"\s+", " ", html_part).strip()
         return html_part
+
+
+class CustomServeStaticMiddleware(ServeStaticMiddleware):
+    """
+    Custom version of CustomServeStaticMiddleware
+    for serving '.png', '.jpg', and '.jpeg' as '.webp'
+    with a fallback
+    """
+
+    IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Load the manifest to map original names to hashed names
+        self.manifest = self.load_manifest()
+
+    def load_manifest(self):
+        if staticfiles_storage.manifest_name and staticfiles_storage.exists(
+            staticfiles_storage.manifest_name
+        ):
+            with staticfiles_storage.open(staticfiles_storage.manifest_name) as f:
+                return json.load(f)
+        return {"paths": {}}
+
+    async def __call__(self, request):
+        accept = request.headers.get("Accept", "")
+        client_accepts_webp = "image/webp" in accept
+        path_info = request.path_info.replace("/static/", "")
+
+        # Attempt to find the WebP version using the original filename
+        original_name = self.get_original_name(path_info)
+        if client_accepts_webp and original_name:
+            webp_original_name = os.path.splitext(original_name)[0] + ".webp"
+            webp_hashed_name = self.manifest["paths"].get(webp_original_name)
+            if webp_hashed_name:
+                # Serve the hashed WebP file
+                lookup_key = f"{self.static_prefix}{webp_hashed_name}"
+                static_file = self.files.get(lookup_key)
+                if static_file:
+                    return await self.aserve(static_file, request)
+
+        # Fallback to original logic
+        return await super().__call__(request)
+
+    def get_original_name(self, hashed_path):
+        # Reverse lookup to find the original filename from the hashed path
+        for original, hashed in self.manifest.get("paths", {}).items():
+            if hashed == hashed_path:
+                return original
+        return None

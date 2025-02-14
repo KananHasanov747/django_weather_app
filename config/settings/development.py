@@ -2,14 +2,31 @@ from ._base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
-
 INSTALLED_APPS.insert(
-    INSTALLED_APPS.index("django.contrib.staticfiles"), "whitenoise.runserver_nostatic"
+    INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic.runserver_nostatic"
+)
+INSTALLED_APPS += [*PROJECT_APPS]
+
+ALLOWED_HOSTS = ["localhost", "weather.com"]
+
+CSRF_TRUSTED_ORIGINS = ["https://weather.com", "http://weather.com"]
+
+MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
+
+# ServeStatic (ASGI-versioned WhiteNoise)
+
+MIDDLEWARE.insert(
+    MIDDLEWARE.index("django.middleware.security.SecurityMiddleware"),
+    "config.middleware.CustomServeStaticMiddleware",
 )
 
-INSTALLED_APPS += PROJECT_APPS
 
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Django debug toolbar
 
@@ -22,7 +39,3 @@ if not TESTING:
         *MIDDLEWARE,
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     ]
-
-
-# Whitenoise cache policy
-WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0  # 1 year

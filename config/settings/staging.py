@@ -2,19 +2,32 @@ from ._base import *
 
 DEBUG = False
 
-INSTALLED_APPS += PROJECT_APPS
+INSTALLED_APPS.extend(PROJECT_APPS)
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
 
+CSRF_TRUSTED_ORIGINS = ["https://weather.com", "http://weather.com"]
+
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-
-# Compressor
-
-COMPRESS_ENABLED = not DEBUG
-
-COMPRESS_OFFLINE = not DEBUG
+SECURE_SSL_REDIRECT = False
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
-# Whitenoise cache policy
-WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0  # 1 year
+# ServeStatic (ASGI-versioned WhiteNoise)
+
+MIDDLEWARE.insert(
+    MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
+    "config.middleware.CustomServeStaticMiddleware",
+)
+
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# ServeStatic cache policy
+SERVESTATIC_MAX_AGE = 31536000  # 1 year

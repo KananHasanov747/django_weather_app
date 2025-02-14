@@ -11,6 +11,7 @@ urlpatterns = [
     path("", include("server.urls")),  # 'api/'
     path("", include("users.urls")),
     path("", include("client.urls")),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 if not settings.TESTING:
