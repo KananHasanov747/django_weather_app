@@ -1,6 +1,8 @@
+import sys
 import subprocess
 
 from threading import Thread, Event
+
 
 from django.core.management.base import BaseCommand
 
@@ -41,11 +43,10 @@ class Command(BaseCommand):
     def run_server(self):
         """Runs the Django server for production"""
         command = [
-            "daphne",
-            "-e",
+            sys.executable,
+            # echo "127.0.0.1 weather.com" >> /etc/hosts
             # mkcert -install; cd certs/; mkcert weather.com
-            "ssl:443:privateKey=certs/weather.com-key.pem:certKey=certs/weather.com.pem",
-            "config.asgi:application",  # Point to your ASGI application
+            "server.py",
         ]
 
         # Run the server with the constructed command

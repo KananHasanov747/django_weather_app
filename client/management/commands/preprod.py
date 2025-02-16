@@ -19,24 +19,21 @@ class Command(BaseCommand):
         ]
         subprocess.run(command)
 
-    def run_server(self, **options):
+    def run_server(self):
         """Runs the Django server for production"""
         command = [
-            "daphne",
-            "-e",
+            sys.executable,
+            # echo "127.0.0.1 weather.com" >> /etc/hosts
             # mkcert -install; cd certs/; mkcert weather.com
-            "ssl:443:privateKey=certs/weather.com-key.pem:certKey=certs/weather.com.pem",
-            "config.asgi:application",  # Point to your ASGI application
+            "server.py",
         ]
 
         # Run the server with the constructed command
         subprocess.run(command)
 
     def handle(self, *args, **options):
-        print(args)
-        print(options)
         try:
             self.run_collectstatic()
-            self.run_server(**options)
+            self.run_server()
         except KeyboardInterrupt:
             sys.exit(0)

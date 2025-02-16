@@ -36,7 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-TESTING = "test" in sys.argv
+TESTING = "pytest" in sys.argv
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -51,7 +51,6 @@ SESSION_COOKIE_SECURE = True
 # Application definition
 
 INSTALLED_APPS = [
-    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -138,6 +137,7 @@ if env("DJANGO_POSTGRES"):
         }
     }
 
+# TODO: replace to Redis
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
