@@ -13,11 +13,6 @@ urlpatterns = [
     path("", include("client.urls")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += [
-        path("__reload__/", include("django_browser_reload.urls")),
-    ]
-
 if not settings.TESTING:
     try:
         from debug_toolbar.toolbar import debug_toolbar_urls

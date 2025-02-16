@@ -18,7 +18,6 @@ dependencies = [
     "loguru>=0.7.3",
     "servestatic[brotli]==3.0.0",
     "rjsmin>=1.2.3",
-    "pyopenssl>=24.3.0",
     "psycopg[binary]>=3.2.4",
     "uvicorn>=0.34.0",
 ]
@@ -30,7 +29,7 @@ dev = [
     "pytest-django>=4.9.0",
     "pytest-asyncio>=0.25.2",
     "pillow>=11.1.0",
-    "django-browser-reload>=1.18.0",
+    "watchfiles>=1.0.4",
 ]
 
 [too.uv]

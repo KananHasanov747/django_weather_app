@@ -5,13 +5,11 @@ DEBUG = True
 INSTALLED_APPS.insert(
     INSTALLED_APPS.index("django.contrib.staticfiles"), "servestatic.runserver_nostatic"
 )
-INSTALLED_APPS += ["django_browser_reload", *PROJECT_APPS]
+INSTALLED_APPS += [*PROJECT_APPS]
 
-ALLOWED_HOSTS = ["localhost", "weather.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "weather.com"]
 
 CSRF_TRUSTED_ORIGINS = ["https://weather.com", "http://weather.com"]
-
-MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
 
 # ServeStatic (ASGI-versioned WhiteNoise)
 
