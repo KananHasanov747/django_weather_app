@@ -21,8 +21,8 @@ from loguru import logger
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost"]),
-    DJANGO_POSTGRES=(bool, False),
-    NGINX_ENABLED=(bool, False),
+    POSTGRES=(bool, False),
+    DJANGO_NGINX=(bool, False),
 )
 environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
@@ -119,21 +119,22 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-if env("DJANGO_POSTGRES"):
+if env("POSTGRES"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": env("DJANGO_POSTGRES_DB"),
-            "USER": env("DJANGO_POSTGRES_USER"),
-            "PASSWORD": env("DJANGO_POSTGRES_PASSWORD"),
-            "HOST": env("DJANGO_POSTGRES_HOST"),
+            "NAME": env("POSTGRES_DB"),
+            "USER": env("POSTGRES_USER"),
+            "PASSWORD": env("POSTGRES_PASSWORD"),
+            "HOST": env("POSTGRES_HOST"),
+            "PORT": env("POSTGRES_PORT"),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 

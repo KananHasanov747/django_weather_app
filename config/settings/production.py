@@ -14,7 +14,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # ServeStatic (ASGI-versioned WhiteNoise)
 
-if not env("NGINX_ENABLED"):
+if not env("DJANGO_NGINX"):
     MIDDLEWARE.insert(
         MIDDLEWARE.index("django.middleware.security.SecurityMiddleware"),
         "config.middleware.CustomServeStaticMiddleware",
