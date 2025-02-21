@@ -3,17 +3,11 @@
     attrs
     }}
     type="button"
-    x-data="{
-    activebtn: window.location.pathname === '{{ url }}' ? 'font-bold' : 'font-normal',
-    updateActive() {
-    this.activebtn = (window.location.pathname === '{{ url }}');
-    }
-    }"
-    x-init="() => {
-    window.addEventListener('htmx:afterSwap', () => this.updateActive());
-    this.$watch('activebtn', () => {});  // Force reactivity
-    }"
-    :class="'flex flex-col items-center mt-8 text-light-white cursor-pointer ' + activebtn"
+    x-data="{activeBtn: false}"
+    x-effect="
+    activeBtn = $store.navigation.currentPath === '{{ url }}' ? 'font-bold' : 'font-normal'
+    "
+    :class="'flex flex-col items-center mt-8 text-light-white cursor-pointer ' + activeBtn"
     hx-get="{{ url }}"
     hx-target="#content"
     hx-swap="innerHTML"

@@ -1,18 +1,18 @@
-{% load static client_filters %}
+{% load static %}
 <div class="flex w-full">
     <div class="flex flex-col w-full px-7 py-6 bg-light-gray rounded-3xl">
         <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-4">TODAY'S FORECAST</h1>
         <div class="w-full grid grid-cols-6">
-            {% for time in data.hourly.date %}
+            {% for index in data.hourly %}
                 <div class="flex">
                     {% if not forloop.first %}<div class="flex bg-slate-600 h-full w-[0.5px]"></div>{% endif %}
                     <div class="flex flex-col items-center">
-                        <span class="text-sm text-dark-white font-semibold">{{ data.hourly.date|index:forloop.counter0 }}</span>
+                        <span class="text-sm text-dark-white font-semibold">{{ data.hourly|index:forloop.counter0|index:'date' }}</span>
                         <span class="px-8">
-                            <img src="{% static data.hourly.icon_url|index:forloop.counter0 %}"
-                                 alt="{{ data.hourly.description|index:forloop.counter0 }}" />
+                            <img src="{% static data.hourly|index:forloop.counter0|index:'icon_url' %}"
+                                 alt="{{ data.hourly|index:forloop.counter0|index:'description' }}" />
                         </span>
-                        <span class="text-2xl text-light-white">{{ data.hourly.temperature|index:forloop.counter0 }}°</span>
+                        <span class="text-2xl text-light-white">{{ data.hourly|index:forloop.counter0|index:'temperature' }}°</span>
                     </div>
                 </div>
             {% endfor %}

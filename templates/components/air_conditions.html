@@ -1,4 +1,3 @@
-{% load client_filters %}
 <div class="w-full">
     <div class="flex flex-col px-7 py-6 bg-light-gray rounded-3xl">
         <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-4">AIR CONDITIONS</h1>
@@ -28,9 +27,7 @@
                 <iconify-icon icon="fa-solid:sun" class="text-dark-white text-2xl mr-3"></iconify-icon>
                 <div class="flex flex-col">
                     <span class="text-dark-white text-lg font-light mb-2">UV index</span>
-                    <span x-data="{ uv_index: {{ data.daily.uv_index|to_json }} }"
-                          x-text="uv_index[0] + '%'"
-                          class="text-light-white text-2xl font-semibold"></span>
+                    <span class="text-light-white text-2xl font-semibold">{{ data.daily|index:0|index:'uv_index' }}%</span>
                 </div>
             </div>
         </div>

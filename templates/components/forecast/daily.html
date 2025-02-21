@@ -1,11 +1,8 @@
-{# TODO: make full REST API on server side (without js) #}
-{% load static client_filters %}
-<div class="flex flex-col w-full p-9 bg-light-gray rounded-3xl"
-    {#x-data="{ daily: {{ data.daily|to_json }} }"#}
-    >
+{% load static %}
+<div class="flex flex-col w-full p-9 bg-light-gray rounded-3xl">
     <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-5">7-DAY FORECAST</h1>
     <div class="h-full grid grid-rows-7 gap-auto">
-        {% for time in data.daily.time %}
+        {% for index in data.daily %}
             <div class="w-full">
                 {% if not forloop.first %}<div class="flex bg-gray-600 w-full h-[.5px]"></div>{% endif %}
                 <div class="grid grid-cols-3 items-center w-full">
@@ -13,16 +10,16 @@
                         {% if forloop.first %}
                             Today
                         {% else %}
-                            {{ data.daily.days_of_week|index:forloop.counter0 }}
+                            {{ data.daily|index:forloop.counter0|index:'day_of_week' }}
                         {% endif %}
                     </span>
                     <div class="px-3">
-                        <img src="{% static data.daily.icon_url|index:forloop.counter0 %}"
-                             alt="{{ data.daily.description|index:forloop.counter0 }}" />
+                        <img src="{% static data.daily|index:forloop.counter0|index:'icon_url' %}"
+                             alt="{{ data.daily|index:forloop.counter0|index:'description' }}" />
                     </div>
                     <div class="text-right text-base text-dark-white">
-                        <span class="text-light-white font-semibold">{{ data.daily.temperature_max|index:forloop.counter0 }}°</span>/
-                        <span class="text-dark-white font-light">{{ data.daily.temperature_min|index:forloop.counter0 }}°</span>
+                        <span class="text-light-white font-semibold">{{ data.daily|index:forloop.counter0|index:'temperature_max' }}°</span>/
+                        <span class="text-dark-white font-light">{{ data.daily|index:forloop.counter0|index:'temperature_min' }}°</span>
                     </div>
                 </div>
             </div>

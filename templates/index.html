@@ -14,21 +14,36 @@
     </head>
     <body hx-ext="preload" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <c-base />
-        <script src="{% static "js/search.js" %}"></script>
         <script>
-              document.addEventListener("DOMContentLoaded", function () {
-                // Handle browser back/forward navigation
-                window.addEventListener("popstate", function (event) {
-                  // Reload main content from current URL
-                  htmx.ajax("GET", window.location.href, {
-                    target: "#content",
-                    swap: "innerHTML",
-                    headers: {
-                      "HX-Request": "true", // Force partial responses
-                    },
-                  });
-                });
+          document.addEventListener("DOMContentLoaded", () => {
+            // Handle browser back/forward navigation
+            window.addEventListener("popstate", (event) => {
+              // Reload main content from current URL
+              htmx.ajax("GET", window.location.href, {
+                target: "#content",
+                swap: "innerHTML",
+                headers: {
+                  "HX-Request": "true", // Force partial responses
+                },
               });
+            });
+          });
+        </script>
+        <script>
+          document.addEventListener('alpine:init', () => {
+            Alpine.store('navigation', {
+                currentPath: window.location.pathname,
+                
+                updatePath(newPath) {
+                    this.currentPath = newPath;
+                }
+            });
+          });
+
+          htmx.on('htmx:afterSwap', (event) => {
+              const newPath = new URL(event.detail.xhr.responseURL).pathname;
+              Alpine.store('navigation').updatePath(newPath);
+          });
         </script>
     </body>
 </html>
