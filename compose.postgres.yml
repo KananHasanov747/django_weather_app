@@ -1,0 +1,27 @@
+services:
+  app:
+    environment:
+      POSTGRES: True
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    # Example database service (using PostgreSQL here)
+    image: postgres:17-alpine # Use the official PostgreSQL 17 image based on Alpine from Docker Hub
+    restart: always
+    command: -p 5433
+    expose:
+      - 5433
+    ports:
+      - "5433:5433"
+    env_file:
+      - .env.prod
+    volumes:
+      # Define volumes to persist database data
+      - postgres_data:/var/lib/postgresql/data # Store database data in a Docker volume
+    networks:
+      - app_network # Use a custom network for communication between services
+
+volumes:
+  # Declare volumes that are used for persistent data storage
+  postgres_data: # This volume is used by the 'db' service to store Postgres data

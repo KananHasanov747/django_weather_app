@@ -1,0 +1,9 @@
+services:
+  app:
+    environment:
+      DJANGO_PORT: 8443
+    ports:
+      # Exposes ports for access from outside the container
+      - "8443:8443" # Maps container's port 8000 to host's port 8000
+    expose:
+      - "8443"
