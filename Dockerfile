@@ -33,6 +33,8 @@ linker = 'rust-lld'\n\
 rustflags = ['-C', 'opt-level=z', '-C', 'codegen-units=1']\n" \
     >> $HOME/.cargo/config.toml
 
+# TODO: move .venv file into /opt/venv and run from there (e.g., /opt/venv/bin/python or /opt/venv/bin/pip)
+
 # Install uv package manager
 RUN pip install --no-cache-dir uv
 
@@ -65,8 +67,9 @@ COPY . .
 # Final stage: Use a minimal Python image for production
 FROM python:${PYTHON_VERSION}-alpine
 
+# FIX: appuser cannot interact with postgres
 # Adding a new user with limited privileges
-RUN adduser -S appuser -D -h /app
+# RUN adduser -S appuser -D -h /app
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -76,8 +79,11 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Copy only the necessary files from the builder stage
-COPY --from=builder --chown=appuser /usr/local/bin /usr/local/bin
-COPY --from=builder --chown=appuser /app /app
+# COPY --from=builder --chown=appuser /usr/local/bin /usr/local/bin
+# COPY --from=builder --chown=appuser /app /app
+
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /app /app
 
 # Copy apk libraries from the builder stage
 COPY --from=builder /usr/lib/ /usr/lib/
@@ -91,7 +97,7 @@ COPY --from=builder /usr/lib/ /usr/lib/
 #     chmod -R 755 /app/staticfiles
 
 # Switch to non-root user
-USER appuser
+# USER appuser
 
-# Expose the application port
-EXPOSE 8000
+# TODO: create entrypoint.sh
+# TODO: add superuser via /opt/venv/bin/python manage.py createsuperuser --username USERNAME --noinput
