@@ -1,7 +1,9 @@
 from typing import List, Optional
 from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
 from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
+from ninja.decorators import decorate_view
 from channels.db import database_sync_to_async
 
 # from datetime import time
@@ -27,6 +29,7 @@ def get_cities(q):
 
 
 @api.get("/cities", response=List[CitySchema], url_name="city")
+@decorate_view(cache_page(60 * 10))
 async def cities_view(request, q: Optional[str] = Query(None)):
     return await get_cities(q)
 
@@ -81,6 +84,7 @@ class WeatherSchema(BaseModel):
 
 
 @api.get("/weather", response=WeatherSchema, url_name="weather")
+@decorate_view(cache_page(60 * 10))
 async def weather_view(request, city: str, country: Optional[str] = Query(None)):
     try:
         weather = WeatherAPI(city=city, country=country)
