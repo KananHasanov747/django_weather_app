@@ -12,6 +12,11 @@ def main():
         if command == "preprod":
             os.environ.setdefault("DJANGO_ENV_NAME", ".env.staging")
             os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.staging")
+        elif command == "pytest":
+            os.environ.setdefault("DJANGO_ENV_NAME", ".env.prod")
+            os.environ.setdefault(
+                "DJANGO_SETTINGS_MODULE", "config.settings.production"
+            )
         else:  # for development
             os.environ.setdefault("DJANGO_ENV_NAME", ".env.dev")
             os.environ.setdefault(
