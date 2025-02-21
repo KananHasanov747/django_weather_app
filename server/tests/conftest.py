@@ -1,10 +1,12 @@
-import pytest
+import os
 import pytest_asyncio
 from typing import Any
 
 from django.test import AsyncClient
 
 from ..models import City
+
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 
 class _Auto:
@@ -20,8 +22,8 @@ class _Auto:
 Auto: Any = _Auto()
 
 
-@pytest.fixture
-def aclient():
+@pytest_asyncio.fixture
+async def aclient():
     return AsyncClient()
 
 

@@ -1,13 +1,19 @@
 import pytest
 import asyncio
 
+# from ninja.testing import TestClient
+
 from django.urls import reverse
 from django.test import override_settings
+
+# from ..views import api
+
+# aclient = TestClient(api)
 
 
 @pytest.mark.django_db
 @pytest.mark.asyncio
-class TestServer:
+class TestServerViews:
     @override_settings(DEBUG=True)
     async def test_async_city_view(self, aclient, locations):
         """Fetching list of cities through API using 'city'"""
@@ -16,7 +22,8 @@ class TestServer:
             """Used for making concurrent fetching"""
             # NOTE: reverse function cannot accept query params as kwargs
             response = await aclient.get(
-                f'{reverse("api:city")}?q={city}', ACCEPT="application/json"
+                f'{reverse("api:city")}?q={city}',
+                headers={"ACCEPT": "application/json"},
             )
 
             assert response.status_code == 200
