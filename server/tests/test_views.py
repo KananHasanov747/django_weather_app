@@ -3,23 +3,23 @@ import asyncio
 
 
 from django.urls import reverse
-from django.test import override_settings
+from django.test import AsyncClient, override_settings
+
+
+aclient = AsyncClient(headers={"ACCEPT": "application/json"})
 
 
 @pytest.mark.django_db
 @pytest.mark.asyncio
 class TestServerViews:
     @override_settings(DEBUG=True)
-    async def test_async_city_view(self, aclient, locations):
+    async def test_async_city_view(self, locations):
         """Fetching list of cities through API using 'city'"""
 
         # Fetch all requests concurrently
         responses = await asyncio.gather(
             *(
-                aclient.get(
-                    f"{reverse('server_api:city')}?q={location.city}",
-                    ACCEPT="application/json",
-                )
+                aclient.get(f"{reverse('server_api:city')}?q={location.city}")
                 for location in locations
             )
         )
@@ -30,15 +30,14 @@ class TestServerViews:
             assert response.status_code == 200
 
     @override_settings(DEBUG=True)
-    async def test_async_weather_view(self, aclient, locations):
+    async def test_async_weather_view(self, locations):
         """Fetching data through API using 'city' and 'country'"""
 
         # Fetch all requests concurrently
         responses = await asyncio.gather(
             *(
                 aclient.get(
-                    f"{reverse('server_api:weather')}?city={location.city}&country={location.country}",
-                    ACCEPT="application/json",
+                    f"{reverse('server_api:weather')}?city={location.city}&country={location.country}"
                 )
                 for location in locations
             )

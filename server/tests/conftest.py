@@ -2,7 +2,6 @@ import os
 import pytest_asyncio
 from typing import Any
 
-from django.test import AsyncClient
 
 from ..models import City
 
@@ -20,11 +19,6 @@ class _Auto:
 
 
 Auto: Any = _Auto()
-
-
-@pytest_asyncio.fixture
-async def aclient():
-    return AsyncClient()
 
 
 @pytest_asyncio.fixture

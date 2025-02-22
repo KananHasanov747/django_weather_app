@@ -2,7 +2,10 @@ import pytest
 from random import choice
 
 from django.urls import reverse
-from django.test import override_settings
+from django.test import AsyncClient, override_settings
+
+
+aclient = AsyncClient(ACCEPT="application/json")
 
 
 @pytest.mark.django_db
@@ -10,11 +13,11 @@ from django.test import override_settings
 class TestServerAPI:
 
     @override_settings(DEBUG=True)
-    async def test_openmeteo(self, aclient, locations):
+    async def test_openmeteo(self, locations):
+
         location = choice(locations)
         response = await aclient.get(
-            f'{reverse("server_api:weather")}?city={location.city}&country={location.country}',
-            ACCEPT="application/json",
+            f'{reverse("server_api:weather")}?city={location.city}&country={location.country}'
         )
 
         assert response.status_code == 200
