@@ -1,14 +1,9 @@
 import pytest
 import asyncio
 
-# from ninja.testing import TestClient
 
 from django.urls import reverse
 from django.test import override_settings
-
-# from ..views import api
-
-# aclient = TestClient(api)
 
 
 @pytest.mark.django_db
@@ -18,30 +13,42 @@ class TestServerViews:
     async def test_async_city_view(self, aclient, locations):
         """Fetching list of cities through API using 'city'"""
 
-        async def fetch_city(city):
-            """Used for making concurrent fetching"""
-            # NOTE: reverse function cannot accept query params as kwargs
-            response = await aclient.get(
-                f'{reverse("api:city")}?q={city}',
-                headers={"ACCEPT": "application/json"},
-            )
-
-            assert response.status_code == 200
-
         # Fetch all requests concurrently
-        await asyncio.gather(*(fetch_city(location.city) for location in locations))
+        responses = await asyncio.gather(
+            *(
+                aclient.get(
+                    f"{reverse('server_api:city')}?q={location.city}",
+                    ACCEPT="application/json",
+                )
+                for location in locations
+            )
+        )
+
+        assert responses is not None
+
+        for response in responses:
+            assert response.status_code == 200
 
     @override_settings(DEBUG=True)
     async def test_async_weather_view(self, aclient, locations):
         """Fetching data through API using 'city' and 'country'"""
 
-        async def fetch_weather(location):
-            """Used for making concurrent fetching"""
-            # NOTE: reverse function cannot accept query params as kwargs
-            response = await aclient.get(
-                f'{reverse("api:weather")}?city={location.city}&country={location.country}',
-                ACCEPT="application/json",
+        # Fetch all requests concurrently
+        responses = await asyncio.gather(
+            *(
+                aclient.get(
+                    f"{reverse('server_api:weather')}?city={location.city}&country={location.country}",
+                    ACCEPT="application/json",
+                )
+                for location in locations
             )
+        )
+
+        assert responses is not None
+
+        for response, location in zip(responses, locations):
+            assert response.status_code == 200
+
             response_json = response.json()
 
             assert response.status_code == 200
@@ -53,6 +60,3 @@ class TestServerViews:
                 "longitude" in response_json
                 and response_json["longitude"] == location.lon
             )
-
-        # Fetch all requests concurrently
-        await asyncio.gather(*(fetch_weather(location) for location in locations))

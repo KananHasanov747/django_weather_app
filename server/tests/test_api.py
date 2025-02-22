@@ -13,7 +13,7 @@ class TestServerAPI:
     async def test_openmeteo(self, aclient, locations):
         location = choice(locations)
         response = await aclient.get(
-            f'{reverse("api:weather")}?city={location.city}&country={location.country}',
+            f'{reverse("server_api:weather")}?city={location.city}&country={location.country}',
             ACCEPT="application/json",
         )
 
