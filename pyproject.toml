@@ -16,7 +16,7 @@ dependencies = [
     "django-htmx>=1.21.0",
     "django-environ>=0.12.0",
     "loguru>=0.7.3",
-    "servestatic[brotli]==3.0.0",
+    "servestatic==3.0.0",
     "rjsmin>=1.2.3",
     "psycopg[binary]>=3.2.4",
     "uvicorn>=0.34.0",
@@ -33,13 +33,13 @@ dev = [
 ]
 
 [too.uv]
-default-groups =  ["dev"]
+default-groups = ["dev"]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings.production"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 markers = [
+    "disabled: marks tests as disabled (deselect with '-m \"not disabled\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
 ]
