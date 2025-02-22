@@ -11,7 +11,7 @@ from channels.db import database_sync_to_async
 from server.models import City
 from server.openmeteo import WeatherAPI, CurrentWeather, HourlyWeather, DailyWeather
 
-api = NinjaAPI(urls_namespace="api")
+api = NinjaAPI(urls_namespace="server_api")
 
 
 class CitySchema(BaseModel):
