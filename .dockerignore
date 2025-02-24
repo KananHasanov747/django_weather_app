@@ -172,8 +172,12 @@ cython_debug/
 .pypirc
 
 # others
+.git
 .DS_Store
 bruno-workflows/
+images/
+scripts/
 # staticfiles/
 filtered_worldcities.csv
 tailwind*
+todo.md
