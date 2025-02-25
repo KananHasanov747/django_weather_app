@@ -16,7 +16,6 @@ services:
     command: >
       sh -c "
       uv run --no-dev manage.py migrate; 
-      uv run --no-dev -m sqlite3 db.sqlite3 < weather_cities_dump.sql > /dev/null 2>&1; 
       uv run --no-dev server.py; 
       "
 

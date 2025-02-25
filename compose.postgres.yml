@@ -1,7 +1,7 @@
 services:
   app:
     environment:
-      POSTGRES: True
+      DJANGO_POSTGRES: True
     depends_on:
       - postgres_db
 
@@ -9,11 +9,11 @@ services:
     # Example database service (using PostgreSQL here)
     image: postgres:17-alpine # Use the official PostgreSQL 17 image based on Alpine from Docker Hub
     restart: always
-    command: -p 5433
+    # command: -p 5433
     expose:
-      - 5433
-    ports:
-      - "5433:5433"
+      - 5432
+    # ports:
+    #   - "5433:5433"
     env_file:
       - .env.prod
     volumes:
