@@ -3,11 +3,14 @@ services:
     environment:
       DJANGO_REDIS: True
     depends_on:
-      - redis
+      - redis-cache
 
-  redis:
+  redis-cache:
     # Redis service for caching
     image: redis:alpine # Use the official Redis image based on Alpine
+    restart: always
+    expose:
+      - 6379
     volumes:
       - redis_data:/data # Persist Redis data in a Docker volume (optional, depends on use case)
     networks:
@@ -16,3 +19,4 @@ services:
 volumes:
   # Declare volumes that are used for persistent data storage
   redis_data: # This volume is used by the 'caching' service to store Redis data (optional)
+    driver: local

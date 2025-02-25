@@ -21,8 +21,9 @@ from loguru import logger
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost"]),
-    POSTGRES=(bool, False),
+    DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
+    DJANGO_REDIS=(bool, False),
 )
 environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
@@ -119,7 +120,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if env("POSTGRES"):
+if env("DJANGO_POSTGRES"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -138,13 +139,20 @@ else:
         }
     }
 
-# TODO: replace to Redis
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "database_cache",  # table name
+if env("DJANGO_REDIS"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "database_cache",  # table name
+        }
+    }
 
 FIXTURE_DIRS = (BASE_DIR / "fixtures",)
 
