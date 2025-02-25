@@ -3,7 +3,9 @@
         <c-sidebar.main />
         <div id="content" class="flex w-full">
             {% if request.resolver_match.view_name == "users:login" %}
-                <c-auth />
+                <c-auth.login />
+            {% elif request.resolver_match.view_name == "users:signup" %}
+                <c-auth.signup />
             {% else %}
                 <c-weather />
             {% endif %}
