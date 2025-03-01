@@ -21,9 +21,10 @@
         {% endfor %}
         <div class="w-full flex gap-2">
             {# TODO: fix buttons' visibility, which are based on daisyUI #}
-            <button type="submit" class="btn btn-neutral flex-grow rounded-[.6rem]">SignUp</button>
+            <button type="submit"
+                    class="flex-grow rounded-[.6rem] cursor-pointer p-2 bg-light-gray text-light-white">SignUp</button>
             <button type="button"
-                    class="btn btn-neutral flex-grow rounded-[.6rem]"
+                    class="flex-grow rounded-[.6rem] cursor-pointer p-2 bg-light-gray text-light-white"
                     hx-get="{% url 'users:login' %}"
                     hx-target="#content"
                     hx-swap="innerHTML"
