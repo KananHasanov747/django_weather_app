@@ -1,6 +1,6 @@
 # 🌧 Weather App (Django + HTMX + Alpine.js)
 
-![Main page](images/main_page.jpg)
+![Main page](images/main_page.webp)
 
 ## ✨ Features
 
@@ -23,9 +23,9 @@
   - Pre-production mode (`uv run manage.py preprod` or `.venv/bin/python manage.py preprod`)
   - Testing mode (`uv run manage.py pytest` or `.venv/bin/python manage.py pytest`)
 - [x] Docker containerization
-- [-] Kubernetes support
+- [ ] Kubernetes support
 - [x] [Nginx](https://nginx.org/en/) support
-- [-] [Fail2Ban](https://github.com/fail2ban/fail2ban) support for DDoS attacks and multiple authentication errors
+- [ ] [Fail2Ban](https://github.com/fail2ban/fail2ban) support for DDoS attacks and multiple authentication errors
 
 ## 🛠️ Installation
 
