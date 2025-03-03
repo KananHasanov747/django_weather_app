@@ -6,9 +6,11 @@ import logging
 from pathlib import Path
 from loguru import logger
 
+from django.conf import settings
+
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
-    DJANGO_ALLOWED_HOSTS=(list, ["localhost"]),
+    DJANGO_ALLOWED_HOSTS=(list, ["localhost", "weather.com"]),
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
     DJANGO_REDIS=(bool, False),
@@ -33,6 +35,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
+
 AUTH_USER_MODEL = "users.User"
 
 CSRF_COOKIE_SECURE = True
@@ -42,34 +46,46 @@ SESSION_COOKIE_SECURE = True
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    # plugins and tools
-    "django_htmx",
-    "django_cotton",
-]
-
-PROJECT_APPS = [
-    "server.apps.ServerConfig",
-    "users.apps.UsersConfig",
-    "client.apps.ClientConfig",
+    app
+    for app in [
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        # plugins and tools
+        "servestatic.runserver_nostatic" if settings.DEBUG else False,
+        "django_htmx",
+        "django_cotton",
+        # apps
+        "server.apps.ServerConfig",
+        "users.apps.UsersConfig",
+        "client.apps.ClientConfig",
+    ]
+    if app
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "server.middleware.RestrictDirectUrlAccessMiddleware",  # restrict direct access to api endpoint
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "config.middleware.MinifyHTMLMiddleware",
-    "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
+    middleware
+    for middleware in [
+        "django.middleware.security.SecurityMiddleware",
+        (
+            "config.middleware.CustomServeStaticMiddleware"
+            if not env("DJANGO_NGINX")
+            else False
+        ),
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "server.middleware.RestrictDirectUrlAccessMiddleware",  # restrict direct access to api endpoint
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "config.middleware.MinifyHTMLMiddleware",
+        "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
+    ]
+    if middleware
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -141,6 +157,24 @@ CACHES = {
         else {
             "BACKEND": "django.core.cache.backends.db.DatabaseCache",
             "LOCATION": "database_cache",  # table name
+        }
+    )
+}
+
+STORAGES = {
+    **(
+        {
+            "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+            "staticfiles": {
+                "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+            },
+        }
+        if env("DJANGO_NGINX")
+        else {
+            "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+            "staticfiles": {
+                "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+            },
         }
     )
 }
