@@ -1,3 +1,4 @@
+import os
 import uvicorn
 import environ
 
@@ -6,6 +7,7 @@ from django.conf import settings
 env = environ.Env(DJANGO_PORT=(int, 443))
 
 if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     kwargs = {
         "host": "0.0.0.0",  # Bind to all interfaces
         "port": env("DJANGO_PORT"),
@@ -17,7 +19,7 @@ if __name__ == "__main__":
             }
             if settings.DEBUG
             else {
-                "workers": 4,  # Number of worker processes
+                # "workers": 4,  # Number of worker processes
             }
         ),
         "ssl_keyfile": env("DJANGO_SSL_KEYFILE"),
