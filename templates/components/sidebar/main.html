@@ -4,10 +4,10 @@
     <img src="{% static 'assets/icons/logo.png' %}"
          alt=""
          class="w-11 mb-[1.25rem]" />
-    <c-sidebar.button icon="fa-solid:cloud-sun-rain" text="Weather" url='{% url 'client:index' %}' />
-    <c-sidebar.button icon="dashicons:menu-alt" text="Cities" url="/cities" />
-    {% if not request.user.is_authenticated %}
-        <c-sidebar.button icon="tdesign:user-filled" text="Auth" url="{% url 'users:login' %}" />
-    {% endif %}
-    <c-sidebar.button icon="material-symbols:logout" text="Logout" url="{% url 'users:logout' %}" />
+    <div class="flex flex-col w-[58.07px]">
+        <c-sidebar.button icon="fa-solid:cloud-sun-rain" text="Weather" url='{% url 'client:index' %}' />
+        <c-sidebar.button icon="dashicons:menu-alt" text="Cities" url="/cities" />
+        <c-sidebar.button icon="tdesign:user-filled" text="Auth" url="{% url 'users:auth' action="login" %}" />
+        <c-sidebar.button icon="material-symbols:logout" text="Logout" url="{% url 'users:auth' action="logout" %}" />
+    </div>
 </div>

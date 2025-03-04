@@ -2,9 +2,9 @@
     <div class="flex flex-grow relative my-9 mx-[30px]">
         <c-sidebar.main />
         <div id="content" class="flex w-full">
-            {% if request.resolver_match.view_name == "users:login" %}
+            {% if action == "login" %}
                 <c-auth.login />
-            {% elif request.resolver_match.view_name == "users:signup" %}
+            {% elif action == "signup" %}
                 <c-auth.signup />
             {% else %}
                 <c-weather />
