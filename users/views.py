@@ -3,7 +3,6 @@ from asgiref.sync import sync_to_async
 from django.core.handlers.asgi import ASGIRequest
 from django.http import (
     HttpResponse,
-    HttpResponseBadRequest,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
@@ -14,34 +13,46 @@ from django.contrib.auth.forms import AuthenticationForm
 from users.forms import RegisterForm
 
 
-# path("/accounts/<str:action>/", views.auth_view, name="auth")
-async def auth_view(
-    request: ASGIRequest, action: str
+# path("/accounts/login/", views.login_view, name="login")
+async def login_view(
+    request: ASGIRequest,
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
-    if action not in ["login", "signup", "logout"]:
-        return HttpResponseBadRequest("Invalid action")
-
     if request.method == "POST":
-        if action == "login":
-            form = AuthenticationForm(data=request.POST)
-            if await sync_to_async(form.is_valid)():
-                user = form.get_user()
-                await alogin(request, user)
-                return redirect(reverse("client:index"))
-        elif action == "signup":
-            form = RegisterForm(data=request.POST)
-            if await sync_to_async(form.is_valid)():
-                await sync_to_async(form.save)()
-                return redirect(reverse("users:auth", kwargs={"action": "login"}))
-    elif action == "logout":
-        await alogout(request)
-        return redirect(reverse("client:index"))
-    else:
-        form = AuthenticationForm() if action == "login" else RegisterForm()
+        form = AuthenticationForm(data=request.POST)
+        if await sync_to_async(form.is_valid)():
+            user = form.get_user()
+            await alogin(request, user)
+            return redirect(reverse("client:index"))
 
-        template_name = (
-            f"components/auth/{action}.html" if request.htmx else "index.html"
-        )
-        return await sync_to_async(render)(
-            request, template_name, {"form": form, "action": action}
-        )
+    else:
+        form = AuthenticationForm()
+
+        template_name = "components/auth/login.html" if request.htmx else "index.html"
+
+        return render(request, template_name, {"form": form, "action": "login"})
+
+
+# path("/accounts/signup/", views.signup_view, name="signup")
+async def signup_view(
+    request: ASGIRequest,
+) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
+    if request.method == "POST":
+        form = RegisterForm(data=request.POST)
+        if await sync_to_async(form.is_valid)():
+            await sync_to_async(form.save)()
+            return redirect(reverse("users:login"))
+
+    else:
+        form = RegisterForm()
+
+        template_name = "components/auth/signup.html" if request.htmx else "index.html"
+
+        return render(request, template_name, {"form": form, "action": "signup"})
+
+
+# path("/accounts/logout/", views.logout_view, name="logout")
+async def logout_view(
+    request: ASGIRequest,
+) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
+    await alogout(request)
+    return redirect(reverse("client:index"))

@@ -1,7 +1,7 @@
 <div id="auth"
      class="flex flex-col w-full mx-[22px] items-center justify-center">
     <form id="login"
-          hx-post="{% url 'users:auth' action='login' %}"
+          hx-post="{% url 'users:login' %}"
           hx-target="#content"
           hx-swap="innerHTML"
           hx-push-url="true"
@@ -24,7 +24,7 @@
                     class="rounded-[.6rem] cursor-pointer py-2 bg-light-gray text-light-white">Login</button>
             <button type="button"
                     class="rounded-[.6rem] cursor-pointer py-2 bg-light-gray text-light-white"
-                    hx-get="{% url 'users:auth' action='signup' %}"
+                    hx-get="{% url 'users:signup' %}"
                     hx-target="#content"
                     hx-swap="innerHTML"
                     hx-push-url="true">SignUp</button>
