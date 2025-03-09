@@ -1,11 +1,11 @@
 {% load static %}
-<div class="flex flex-col w-full p-9 bg-light-gray rounded-3xl">
+<div class="flex flex-col w-full px-5 sm:px-7 py-6 bg-light-gray rounded-3xl">
     <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-5">7-DAY FORECAST</h1>
     <div class="h-full grid grid-rows-7 gap-auto">
         {% for index in data.daily %}
             <div class="w-full">
                 {% if not forloop.first %}<div class="flex bg-gray-600 w-full h-[.5px]"></div>{% endif %}
-                <div class="grid grid-cols-3 items-center w-full">
+                <div class="grid grid-cols-3 items-center">
                     <span class="text-base text-dark-white font-light">
                         {% if forloop.first %}
                             Today
@@ -13,9 +13,10 @@
                             {{ data.daily|index:forloop.counter0|index:'day_of_week' }}
                         {% endif %}
                     </span>
-                    <div class="px-3">
+                    <div class="mx-auto">
                         <img src="{% static data.daily|index:forloop.counter0|index:'icon_url' %}"
-                             alt="{{ data.daily|index:forloop.counter0|index:'description' }}" />
+                             alt="{{ data.daily|index:forloop.counter0|index:'description' }}"
+                             class="w-20 h-20 2sm:w-25 2sm:h-25 md:w-30 md:h-30 2md:w-20 2md:h-20" />
                     </div>
                     <div class="text-right text-base text-dark-white">
                         <span class="text-light-white font-semibold">{{ data.daily|index:forloop.counter0|index:'temperature_max' }}°</span>/

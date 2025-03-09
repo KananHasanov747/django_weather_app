@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="en-US">
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Weather App</title>
         <link rel="shortcut icon"
               type="image/png"
@@ -33,16 +34,11 @@
           document.addEventListener('alpine:init', () => {
             Alpine.store('navigation', {
                 currentPath: window.location.pathname,
-                
-                updatePath(newPath) {
-                    this.currentPath = newPath;
-                }
             });
           });
 
-          htmx.on('htmx:afterSwap', (event) => {
-              const newPath = new URL(event.detail.xhr.responseURL).pathname;
-              Alpine.store('navigation').updatePath(newPath);
+          htmx.on('htmx:afterSwap', (event) => { 
+              Alpine.store('navigation').currentPath = new URL(event.detail.xhr.responseURL).pathname;
           });
         </script>
     </body>

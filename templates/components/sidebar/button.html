@@ -1,11 +1,12 @@
+{# FIX: SynchronousOperationError: request.user.is_authenticated #}
 <button
     {{
     attrs
     }}
     type="button"
-    x-data="{activeBtn: false}"
+    x-data="{activeBtn: false, display: ' block'}"
     x-effect="
-    activeBtn = $store.navigation.currentPath === '{{ url }}' ? 'font-bold' : 'font-normal'
+    activeBtn = $store.navigation.currentPath === '{{ url }}' ? 'font-bold' : 'font-normal';
     "
     :class="'flex flex-col items-center mt-8 text-light-white cursor-pointer ' + activeBtn"
     hx-get="{{ url }}"

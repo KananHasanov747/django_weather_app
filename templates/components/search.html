@@ -1,5 +1,5 @@
 <div x-data="{ query: '', cities: [], highlightedIndex: 0, index: null,  get fetchCities() { if(this.query.length > 0) { fetch(`/search/${this.query}/`) .then((response) => response.text()) .then((list) => { this.cities = JSON.parse(list); this.highlightedIndex = 0; }) } else { this.cities = []; } },  get highlightNext() { if(this.highlightedIndex < this.cities.length - 1) { this.highlightedIndex++; } else { this.highlightedIndex = 0; } },  get highlightPrevious() { if(this.highlightedIndex > 0) { this.highlightedIndex--; } else { this.highlightedIndex = this.cities.length - 1; } },  get selectCity() { const selectedCity = this.cities[this.index ?? this.highlightedIndex]; if(selectedCity) { this.url = new URL(window.location.href); this.url.searchParams.set('city', selectedCity.city); this.url.searchParams.set('country', selectedCity.country);  window.history.pushState({}, '', this.url); htmx.ajax('GET', this.url.toString(), { target: '#content' }) } }  }"
-     class="relative">
+     class="relative w-full grow">
     <input type="text"
            x-model="query"
            @input.debounce.150ms="fetchCities()"
@@ -7,11 +7,11 @@
            @keyup.arrow-up="highlightPrevious()"
            @keyup.enter.prevent="selectCity()"
            placeholder="Search for cities"
-           class="w-full min-w-[46rem] py-[13px] px-2 rounded-[.6rem] bg-light-gray text-[13px] leading-[18px] text-light-white text-light-text outline-none placeholder:text-light-white" />
+           class="w-full py-[13px] px-3 rounded-[.6rem] bg-light-gray text-[13px] leading-[18px] text-light-white text-light-text outline-none placeholder:text-light-white" />
     <div x-show="cities.length > 0"
          class="absolute left-0 right-0 overflow-y-auto text-[13px] leading-[18px] mt-2 text-light-white bg-light-gray gap-2 rounded-[.6rem]">
         <template x-for="(city, index) in cities" :key="index">
-            <div :class="'flex flex-col p-2 rounded-[.6rem] cursor-pointer ' + (index === highlightedIndex ? 'bg-dark-white' : '')"
+            <div :class="'flex flex-col p-2 rounded-[.6rem] cursor-pointer' + (index === highlightedIndex ? ' bg-dark-white' : '')"
                  @click="selectCity()">
                 <span x-text="city.city"></span>
                 <span x-text="city.country"></span>

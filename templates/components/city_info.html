@@ -1,6 +1,6 @@
 {% load static %}
 <div class="w-full">
-    <div class="flex px-11 py-7">
+    <div class="flex p-4 md:px-11 md:py-7">
         <div class="flex-grow">
             <div class="mb-6">
                 <h2 class="text-4xl text-light-white font-semibold mb-1.5">{{ data.city }}</h2>
@@ -11,7 +11,7 @@
                 <span class="text-6xl text-light-white font-medium">{{ data.current.temperature }}°</span>
             </div>
         </div>
-        <img class="h-[194px]"
+        <img class="my-auto h-30 md:h-40 3md:h-48.5"
              src="{% static data.current.icon_url %}"
              alt="{{ data.current.description }}" />
     </div>

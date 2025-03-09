@@ -1,7 +1,7 @@
-<main id="root" class="flex bg-dark-gray w-[1317px] h-[792px]">
-    <div class="flex flex-grow relative my-9 mx-[30px]">
+<main id="root" class="flex bg-dark-gray">
+    <div class="flex flex-grow relative py-6 px-7.5 min-h-dvh">
         <c-sidebar.main />
-        <div id="content" class="flex w-full">
+        <div id="content" class="flex flex-col w-full">
             {% if action == "login" %}
                 <c-auth.login />
             {% elif action == "signup" %}
