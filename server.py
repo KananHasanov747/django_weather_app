@@ -6,12 +6,10 @@ if __name__ == "__main__":
     if "DJANGO_ENVIRONMENT" not in os.environ:
         raise ValueError("DJANGO_ENVIRONMENT must be set")
 
-    if "DJANGO_ENV_NAME" not in os.environ:
-        environ.Env.read_env(".env.prod")
-
     env = environ.Env(
         DJANGO_PORT=(int, 443), DJANGO_HOST=(str, "0.0.0.0"), DJANGO_SSL=(bool, False)
     )
+    environ.Env.read_env(env("DJANGO_ENV_NAME"))
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     from django.conf import settings
