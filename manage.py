@@ -9,10 +9,10 @@ def main():
     # Set ENV_NAME based on the command
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        if command == "preprod":
-            os.environ.setdefault("DJANGO_ENVIRONMENT", "staging")
-        elif command == "pytest":
+        if command in ("pytest", "check"):
             os.environ.setdefault("DJANGO_ENVIRONMENT", "production")
+        elif command == "preprod":
+            os.environ.setdefault("DJANGO_ENVIRONMENT", "staging")
         else:  # for development
             os.environ.setdefault("DJANGO_ENVIRONMENT", "development")
 

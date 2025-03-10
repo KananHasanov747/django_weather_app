@@ -4,12 +4,14 @@ import environ
 
 from django.conf import settings
 
-env = environ.Env(DJANGO_PORT=(int, 443))
+env = environ.Env(
+    DJANGO_PORT=(int, 443), DJANGO_HOST=(str, "0.0.0.0"), DJANGO_SSL=(bool, False)
+)
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     kwargs = {
-        "host": "0.0.0.0",  # Bind to all interfaces
+        "host": env("DJANGO_HOST"),  # Bind to all interfaces
         "port": env("DJANGO_PORT"),
         **(
             {
@@ -22,8 +24,14 @@ if __name__ == "__main__":
                 # "workers": 4,  # Number of worker processes
             }
         ),
-        "ssl_keyfile": env("DJANGO_SSL_KEYFILE"),
-        "ssl_certfile": env("DJANGO_SSL_CERTFILE"),
+        **(
+            {
+                "ssl_keyfile": env("DJANGO_SSL_KEYFILE"),
+                "ssl_certfile": env("DJANGO_SSL_CERTFILE"),
+            }
+            if env("DJANGO_SSL")
+            else {}
+        ),
         "timeout_keep_alive": 30,
     }
 
