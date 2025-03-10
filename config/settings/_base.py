@@ -14,7 +14,7 @@ env = environ.Env(
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
     DJANGO_REDIS=(bool, False),
-    DJANGO_SECRET_KEY_FALLBACKS=(list, []),
+    DJANGO_SECRET_KEY_FALLBACKS=(str, ""),
 )
 environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-SECRET_KEY_FALLBACKS = env("DJANGO_SECRET_KEY_FALLBACKS")
+SECRET_KEY_FALLBACKS = env("DJANGO_SECRET_KEY_FALLBACKS").split(",")
 
 TESTING = "pytest" in sys.argv
 
