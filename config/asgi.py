@@ -18,7 +18,7 @@ from django.conf import settings
 
 logger.info(f"Django Debug mode is {'ENABLED' if settings.DEBUG else 'DISABLED'}")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings._base")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 django_asgi_app = get_asgi_application()
 
