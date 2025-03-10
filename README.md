@@ -18,10 +18,10 @@
   - latitude
   - longitude
   - population
-- [x] Has custom `client/` commands for:
-  - Development mode (`uv run manage.py dev` or `.venv/bin/python manage.py dev`)
-  - Pre-production mode (`uv run manage.py preprod` or `.venv/bin/python manage.py preprod`)
-  - Testing mode (`uv run manage.py pytest` or `.venv/bin/python manage.py pytest`)
+- [x] Has scripts for:
+  - Development mode (`./scripts/dev.sh`)
+  - Pre-production mode (`./scripts/preprod.sh`)
+  - Testing mode (`./scripts/pytest.sh`)
 - [x] Docker containerization
 - [ ] Kubernetes support
 - [x] [Nginx](https://nginx.org/en/) support
@@ -31,7 +31,7 @@
 
 The easiest way to run the app locally is to use Docker/Podman and choose the following:
 
-- Ensure, that all ports (8433 for app, 5432 for postgres, 6379 for redis) are not currently in use (use `lsof -i -P | grep LISTEN` to check busy ports in UNIX systems)
+- Ensure, that all ports (`8433` for app, `5432` for postgres, `6379` for redis) are not currently in use (use `lsof -i -P | grep LISTEN` to check busy ports in UNIX systems)
 - To load the app with the simplest configuration, run:
   `docker compose -f compose.yml -f compose.servestatic.yml up --build`
   or
