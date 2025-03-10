@@ -10,13 +10,15 @@ def main():
     if len(sys.argv) > 1:
         command = sys.argv[1]
         if command in ("pytest", "check"):
-            os.environ.setdefault("DJANGO_ENVIRONMENT", "production")
+            os.environ["DJANGO_ENVIRONMENT"] = "production"
         elif command == "preprod":
-            os.environ.setdefault("DJANGO_ENVIRONMENT", "staging")
+            os.environ["DJANGO_ENVIRONMENT"] = "staging"
         else:  # for development
-            os.environ.setdefault("DJANGO_ENVIRONMENT", "development")
+            os.environ["DJANGO_ENVIRONMENT"] = "development"
+    else:
+        os.environ["DJANGO_ENVIRONMENT"] = "development"
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
 
     try:
         from django.core.management import execute_from_command_line

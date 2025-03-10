@@ -2,14 +2,17 @@ import os
 import uvicorn
 import environ
 
-from django.conf import settings
-
-env = environ.Env(
-    DJANGO_PORT=(int, 443), DJANGO_HOST=(str, "0.0.0.0"), DJANGO_SSL=(bool, False)
-)
-
 if __name__ == "__main__":
+    if "DJANGO_ENVIRONMENT" not in os.environ:
+        raise ValueError("DJANGO_ENVIRONMENT must be set")
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    from django.conf import settings
+
+    env = environ.Env(
+        DJANGO_PORT=(int, 443), DJANGO_HOST=(str, "0.0.0.0"), DJANGO_SSL=(bool, False)
+    )
+
     kwargs = {
         "host": env("DJANGO_HOST"),  # Bind to all interfaces
         "port": env("DJANGO_PORT"),

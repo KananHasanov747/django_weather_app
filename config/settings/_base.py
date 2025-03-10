@@ -1,4 +1,3 @@
-import os
 import sys
 import environ
 import logging
@@ -16,7 +15,6 @@ env = environ.Env(
     DJANGO_REDIS=(bool, False),
     DJANGO_SECRET_KEY_FALLBACKS=(str, ""),
 )
-environ.Env.read_env(os.getenv("DJANGO_ENV_NAME"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
