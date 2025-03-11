@@ -56,6 +56,7 @@ INSTALLED_APPS = [
         "servestatic.runserver_nostatic" if settings.DEBUG else False,
         "django_htmx",
         "django_cotton",
+        "django_recaptcha",
         # apps
         "server.apps.ServerConfig",
         "users.apps.UsersConfig",
@@ -124,6 +125,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# TODO: add the ability to switch between databases (like in CACHES)
 DATABASES = {
     "default": (
         {
@@ -293,3 +295,6 @@ logger.add(
     backtrace=False,
     diagnose=False,
 )
+
+RECAPTCHA_PUBLIC_KEY = "6LeMavEqAAAAAFD1XyilOt2L2s3jl7xR6gQ301NA"
+RECAPTCHA_PRIVATE_KEY = "6LeMavEqAAAAAG3ILABQDjyhBnFylYeNXywrXRiO"

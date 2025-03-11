@@ -7,11 +7,10 @@ from django.http import (
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
-from django.contrib.auth import alogin, alogout
+from django.contrib.auth import alogin, aauthenticate, alogout
 from django.shortcuts import render, redirect, reverse
-from django.contrib.auth.forms import AuthenticationForm
 
-from users.forms import RegisterForm
+from users.forms import LoginForm, RegisterForm
 
 
 # path("/accounts/login/", views.login_view, name="login")
@@ -32,14 +31,17 @@ async def login_view(
         raise Ratelimited()
 
     if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+        form = LoginForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
-            user = form.get_user()
-            await alogin(request, user)
-            return redirect(reverse("client:index"))
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = await aauthenticate(request, username=username, password=password)
+            if user:
+                await alogin(request, user)
+                return redirect(reverse("client:index"))
 
     else:
-        form = AuthenticationForm()
+        form = LoginForm()
 
         template_name = "components/auth/login.html" if request.htmx else "index.html"
 

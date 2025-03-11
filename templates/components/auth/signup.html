@@ -8,18 +8,7 @@
           hx-push-url="true"
           class="flex flex-col gap-4 w-[280px]">
         {% csrf_token %}
-        {% for field in form %}
-            <!-- prettier-ignore -->
-            <input type="{% if field.name == 'password' %}password{% else %}text{% endif %}"
-                   name="{{ field.name }}"
-                   placeholder="{{ field.name|capfirst }}"
-                   required
-                   {% if field.name == "username" %}autocapitalize="none"{% endif %}
-                   {% if field.name == "password" %}maxlength="150"{% endif %}
-                   autocomplete="{% if field.name == 'username' %}{{ field.name }}{% else %}current-password{% endif %}"
-                   id="{{ field.auto_id }}"
-                   class="py-[14px] px-2 rounded-[.6rem] leading-[18px] outline-none bg-light-gray text-[13px] text-light-white text-light-text placeholder:text-light-white" />
-        {% endfor %}
+        {% for field in form %}{{ field }}{% endfor %}
         <div class="w-full grid grid-flow-col grid-cols-2 gap-2">
             <button type="submit"
                     class="rounded-[.6rem] cursor-pointer py-2 bg-light-gray text-light-white">SignUp</button>
