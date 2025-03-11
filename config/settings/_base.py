@@ -146,17 +146,18 @@ DATABASES = {
 }
 
 CACHES = {
-    "default": (
-        {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379",
-        }
-        if env("DJANGO_REDIS")
-        else {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "database_cache",  # table name
-        }
-    )
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "database_cache",  # table name
+    },
+    "redis": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    },
+    "memcached": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "127.0.0.1:11211",
+    },
 }
 
 STORAGES = {
