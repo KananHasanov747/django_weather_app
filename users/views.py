@@ -1,6 +1,7 @@
 from asgiref.sync import sync_to_async
+from django_ratelimit.core import is_ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
-from django.core.handlers.asgi import ASGIRequest
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -15,8 +16,21 @@ from users.forms import RegisterForm
 
 # path("/accounts/login/", views.login_view, name="login")
 async def login_view(
-    request: ASGIRequest,
+    request,  # ASGIRequest
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
+
+    # Check if the request is rate-limited
+    if await sync_to_async(is_ratelimited)(
+        request,
+        fn=login_view,
+        key="ip",  # Rate limit based on IP address
+        rate="1/s",  # 10 request per second
+        method="GET",  # Apply to GET requests
+        increment=True,  # Increment the counter
+    ):
+        # Handle rate limit exceeded
+        raise Ratelimited()
+
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
@@ -34,8 +48,20 @@ async def login_view(
 
 # path("/accounts/signup/", views.signup_view, name="signup")
 async def signup_view(
-    request: ASGIRequest,
+    request,  # ASGIRequest
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
+    # Check if the request is rate-limited
+    if await sync_to_async(is_ratelimited)(
+        request,
+        fn=signup_view,
+        key="ip",  # Rate limit based on IP address
+        rate="1/s",  # 10 request per second
+        method="GET",  # Apply to GET requests
+        increment=True,  # Increment the counter
+    ):
+        # Handle rate limit exceeded
+        raise Ratelimited()
+
     if request.method == "POST":
         form = RegisterForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
@@ -52,7 +78,7 @@ async def signup_view(
 
 # path("/accounts/logout/", views.logout_view, name="logout")
 async def logout_view(
-    request: ASGIRequest,
+    request,  # ASGIRequest
 ) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
     await alogout(request)
     return redirect(reverse("client:index"))

@@ -1,12 +1,13 @@
-from typing import List, Optional
-from django.http import JsonResponse
-from django.views.decorators.cache import cache_page
+from typing import Dict, List, Optional
+from channels.db import database_sync_to_async, sync_to_async
+from django_ratelimit.core import is_ratelimited
+from django_ratelimit.exceptions import Ratelimited
+
 from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
 from ninja.decorators import decorate_view
-from channels.db import database_sync_to_async
-
-# from datetime import time
+from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
 
 from server.models import City
 from server.openmeteo import WeatherAPI, CurrentWeather, HourlyWeather, DailyWeather
@@ -23,54 +24,31 @@ class CitySchema(BaseModel):
 
 
 @database_sync_to_async
-def get_cities(q):
+def get_cities(q) -> List:
     queryset = City.objects.filter(city__icontains=q)[:4]
     return list(queryset.values("city", "lat", "lon", "country", "population"))
 
 
 @api.get("/cities", response=List[CitySchema], url_name="city")
-@decorate_view(cache_page(60 * 10))
-async def cities_view(request, q: Optional[str] = Query(None)):
+@decorate_view(cache_page(60 * 10, cache="memcached"))
+async def cities_view(request, q: Optional[str] = Query(None)) -> List:
+    # Check if the request is rate-limited
+    if await sync_to_async(is_ratelimited)(
+        request,
+        fn=cities_view,
+        key="ip",  # Rate limit based on IP address
+        rate="10/s",  # 10 request per second
+        method="GET",  # Apply to GET requests
+        increment=True,  # Increment the counter
+    ):
+        # Handle rate limit exceeded
+        raise Ratelimited()
+
     return await get_cities(q)
 
 
 async def city_search_view(request, query):
     return JsonResponse(await cities_view(request, query), safe=False)
-
-
-# class CurrentWeather(BaseModel):
-#     temperature: float
-#     apparent_temperature: float
-#     # is_day: int
-#     icon_url: str
-#     # precipitation: float
-#     rain: float
-#     # weather_code: int
-#     wind_speed: float
-#     # wind_direction: float
-#
-#
-# class HourlyWeather(BaseModel):
-#     date: List[time]
-#     icon_url: List[str]
-#     description: List[str]
-#     # is_day: List[bool]
-#     temperature: List[float]
-#     humidity: List[int]
-#     # weather_code: List[int]
-#
-#
-# class DailyWeather(BaseModel):
-#     time: List[str]
-#     days_of_week: List[str]
-#     icon_url: List[str]
-#     description: List[str]
-#     # weather_code: List[int]
-#     temperature_max: List[float]
-#     temperature_min: List[float]
-#     # sunrise: List[str]
-#     # sunset: List[str]
-#     uv_index: List[int]
 
 
 class WeatherSchema(BaseModel):
@@ -84,8 +62,22 @@ class WeatherSchema(BaseModel):
 
 
 @api.get("/weather", response=WeatherSchema, url_name="weather")
-@decorate_view(cache_page(60 * 10))
-async def weather_view(request, city: str, country: Optional[str] = Query(None)):
+@decorate_view(cache_page(60 * 10, cache="memcached"))
+async def weather_view(
+    request, city: str, country: Optional[str] = Query(None)
+) -> Dict[str, None]:
+
+    # Check if the request is rate-limited
+    if await sync_to_async(is_ratelimited)(
+        request,
+        fn=weather_view,
+        key="ip",  # Rate limit based on IP address
+        rate="1/s",  # 1 request per second
+        method="GET",  # Apply to GET requests
+        increment=True,  # Increment the counter
+    ):
+        # Handle rate limit exceeded
+        raise Ratelimited()
     try:
         weather = WeatherAPI(city=city, country=country)
         data = await weather.data()
