@@ -18,7 +18,7 @@ def load_cities_sqlite(apps, schema_editor):
     cursor = schema_editor.connection.cursor()
 
     # set PRAGMA settings to speed up the loading
-    cursor.execute("PRAGMA synchronous=OFF;")
+    cursor.execute("PRAGMA synchronous=3;")
     cursor.execute("PRAGMA cache_size=10000;")
     cursor.execute("PRAGMA journal_mode=MEMORY;")
 
