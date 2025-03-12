@@ -278,7 +278,7 @@ colors = {
 
 # File sink (similar to Django's file handler) writes WARNING and above to a file.
 logger.add(
-    "WARNING.log",
+    "/tmp/WARNING.log",
     level="WARNING",
     colorize=False,  # File logs typically do not need color.
     format="{time:YYYY-MM-DTHH:mm:ss,SSS!UTC} {level} [{name}] - {message}",
