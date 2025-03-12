@@ -9,7 +9,7 @@ from django.conf import settings
 
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
-    DJANGO_ALLOWED_HOSTS=(list, ["localhost", "weather.com"]),
+    DJANGO_ALLOWED_HOSTS=(str, "localhost,weather.com"),
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
     DJANGO_REDIS=(bool, False),
@@ -33,7 +33,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
+ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS").split(",")
 
 AUTH_USER_MODEL = "users.User"
 
