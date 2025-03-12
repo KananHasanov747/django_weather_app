@@ -1,68 +1,46 @@
 import os
-import re
-import rjsmin
 import json
 
+from django.http import Http404
 from servestatic.middleware import ServeStaticMiddleware
 
+from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
 
 
-class MinifyHTMLMiddleware(MiddlewareMixin):
-    def process_response(self, request, response):
-        if "text/html" in response.get("Content-Type", ""):
-            content = response.content.decode("utf-8")
-            response.content = self.minify_html(content)
-            response["Content-Length"] = str(len(response.content))
-        return response
+class RestrictDirectAccessMiddleware(MiddlewareMixin):
+    # List of URLs to restrict
+    RESTRICTED_URLS = ["/admin/", "/api/"]
+    RESTRICTED_PATTERNS = ["api:city", "api:weather"]
 
-    def minify_html(self, html):
-        # Divides non-sript and style types into segments
-        segments = re.split(
-            r"(<script.*?>.*?</script>|<style.*?>.*?</style>)",
-            html,
-            flags=re.DOTALL | re.IGNORECASE,
-        )
-        for i, segment in enumerate(segments):
-            if i % 2 == 0:
-                segments[i] = self._minify_non_script_style(segment)
+    def process_request(self, request):
+        # Check if the requested path is in the restricted list
+        if (
+            request.path in self.RESTRICTED_URLS
+            or request.resolver_match in self.RESTRICTED_PATTERNS
+        ):
+            # Get the referer header (where the request came from)
+            referer = request.META.get("HTTP_REFERER")
+            # Check if referer exists and starts with your domain
+            if referer and (
+                referer.startswith(f"http://{settings.ALLOWED_HOSTS[0]}")
+                or referer.startswith(f"https://{settings.ALLOWED_HOSTS[0]}")
+            ):
+                # Internal request from your site, allow it
+                return None
             else:
-                # Minify JS content only inside <script> tags
-                if segment.lower().startswith("<script"):
-                    segments[i] = self._minify_script(segment)
-        return "".join(segments)
+                # Direct or external request, check permissions
+                if not request.user.is_staff or not request.user.is_superuser:
+                    raise Http404()
 
-    def _minify_script(self, script_tag):
-        # Extract JS code from <script> tag
-        js_content = re.search(r"(?<=>)(.*?)(?=</script>)", script_tag, flags=re.DOTALL)
-        if js_content:
-            js_code = js_content.group(1)
-            minified_js = rjsmin.jsmin(js_code)
-            return script_tag.replace(js_code, minified_js)
-        return script_tag
-
-    def _minify_non_script_style(self, html_part):
-        # Remove HTML comments (except IE conditional ones)
-        html_part = re.sub(r"<!--(?!\[if).*?-->", "", html_part, flags=re.DOTALL)
-        # Remove spaces between HTML tags
-        html_part = re.sub(r">\s+<", "><", html_part)
-        # Remove spaces around equal signs in attributes
-        html_part = re.sub(r"\s*=\s*", "=", html_part)
-        # Remove redundant boolean attributes
-        html_part = re.sub(r'\b(\w+)=["\']\1["\']', r"\1", html_part)
-        # Remove whitespace inside inline JS and CSS (e.g., style attributes or event handlers)
-        html_part = re.sub(r"\s*{\s*", "{", html_part)
-        html_part = re.sub(r"\s*}\s*", "}", html_part)
-        html_part = re.sub(r"\s*;\s*", ";", html_part)
-        # Flatten into one line and remove extra whitespace
-        html_part = re.sub(r"\s+", " ", html_part).strip()
-        return html_part
+        # Not a restricted URL, proceed normally
+        return None
 
 
 class CustomServeStaticMiddleware(ServeStaticMiddleware):
     """
-    Custom version of CustomServeStaticMiddleware
+    Custom version of ServeStaticMiddleware
     for serving '.png', '.jpg', and '.jpeg' as '.webp'
     with a fallback
     """
