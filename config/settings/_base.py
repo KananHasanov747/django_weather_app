@@ -78,10 +78,10 @@ MIDDLEWARE = [
         "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "server.middleware.RestrictDirectUrlAccessMiddleware",  # restrict direct access to api endpoint
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "config.middleware.MinifyHTMLMiddleware",
+        "config.middleware.RestrictDirectAccessMiddleware",
+        "django.middleware.gzip.GZipMiddleware",
         "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
     ]
     if middleware
@@ -296,5 +296,5 @@ logger.add(
     diagnose=False,
 )
 
-RECAPTCHA_PUBLIC_KEY = "6LeMavEqAAAAAFD1XyilOt2L2s3jl7xR6gQ301NA"
-RECAPTCHA_PRIVATE_KEY = "6LeMavEqAAAAAG3ILABQDjyhBnFylYeNXywrXRiO"
+RECAPTCHA_PUBLIC_KEY = env("DJANGO_RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = env("DJANGO_RECAPTCHA_PRIVATE_KEY")

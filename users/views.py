@@ -19,16 +19,16 @@ async def login_view(
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
 
     # Check if the request is rate-limited
-    if await sync_to_async(is_ratelimited)(
-        request,
-        fn=login_view,
-        key="ip",  # Rate limit based on IP address
-        rate="1/s",  # 10 request per second
-        method="GET",  # Apply to GET requests
-        increment=True,  # Increment the counter
-    ):
-        # Handle rate limit exceeded
-        raise Ratelimited()
+    # if await sync_to_async(is_ratelimited)(
+    #     request,
+    #     fn=login_view,
+    #     key="ip",  # Rate limit based on IP address
+    #     rate="1/m",  # 10 request per second
+    #     method="POST",  # Apply to POST requests
+    #     increment=True,  # Increment the counter
+    # ):
+    #     # Handle rate limit exceeded
+    #     raise Ratelimited()
 
     if request.method == "POST":
         form = LoginForm(data=request.POST)
@@ -57,8 +57,8 @@ async def signup_view(
         request,
         fn=signup_view,
         key="ip",  # Rate limit based on IP address
-        rate="1/s",  # 10 request per second
-        method="GET",  # Apply to GET requests
+        rate="1/30s",  # 1 request per 30 seconds
+        method="POST",  # Apply to POST requests
         increment=True,  # Increment the counter
     ):
         # Handle rate limit exceeded
