@@ -7,7 +7,7 @@ import environ
 
 def main():
     """Run administrative tasks."""
-    env = environ.Env()
+    env = environ.Env(DJANGO_ENV_NAME=(str, ""))
     environ.Env.read_env(env("DJANGO_ENV_NAME"))
     os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
 
