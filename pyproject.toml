@@ -3,7 +3,7 @@ name = "django-weather-app"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "django>=5.1.4",
     "django-filter>=24.3",
@@ -23,6 +23,8 @@ dependencies = [
     "pymemcache>=4.0.0",
     "django-ratelimit>=4.1.0",
     "django-recaptcha>=4.0.0",
+    "gunicorn>=23.0.0",
+    "uvicorn-worker>=0.3.0",
 ]
 
 [dependency-groups]
