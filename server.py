@@ -16,13 +16,14 @@ if __name__ == "__main__":
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     from django.conf import settings
-    from config.logging import django_logger, UVICORN_LOGGING_CONFIG
+    from config.logging_config import django_logger, UVICORN_LOGGING_CONFIG
 
     kwargs = {
         "host": env("DJANGO_HOST"),  # Bind to all interfaces
         "port": env("DJANGO_PORT"),
         "log_config": UVICORN_LOGGING_CONFIG,
         "log_level": "debug" if settings.DEBUG else "info",
+        "use_colors": True,
         **(
             {
                 "reload": True,  # Auto-reload in development

@@ -7,6 +7,7 @@ logger.remove()
 
 
 # A custom stderr handler that can be pickled
+# (https://docs.python.org/3/library/logging.handlers.html#streamhandler)
 class StderrHandler:
     def write(self, message):
         sys.stderr.write(message)
@@ -45,7 +46,7 @@ logger.add(
 # Create a logger instance to use throughout the project
 django_logger = logger
 
-# Uvicorn custom logging config
+# Uvicorn custom logging config (uses logging syntax)
 UVICORN_LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -65,13 +66,13 @@ UVICORN_LOGGING_CONFIG = {
         "default": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            "stream": "ext://sys.stderr",  # Use string reference to avoid pickling issues
+            "stream": "ext://sys.stderr",  # Use string reference to avoid pickling issues (PEP391)
             "formatter": "default",
         },
         "access": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            "stream": "ext://sys.stderr",  # Use string reference to avoid pickling issues
+            "stream": "ext://sys.stderr",  # Use string reference to avoid pickling issues (PEP391)
             "formatter": "access",
         },
     },

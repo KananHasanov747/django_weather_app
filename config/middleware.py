@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
 
-from .logging import django_logger
+from .logging_config import django_logger
 
 
 class RequestLoggingMiddleware:
@@ -19,6 +19,7 @@ class RequestLoggingMiddleware:
         # Log request info
         django_logger.info(
             f"Request: {request.method} {request.path}",
+            # FIX: extra is not showing
             extra={
                 "user": request.user if request.user.is_authenticated else "Anonymous"
             },
