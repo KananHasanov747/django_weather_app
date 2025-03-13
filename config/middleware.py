@@ -8,6 +8,29 @@ from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
 
+from .logging import django_logger
+
+
+class RequestLoggingMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Log request info
+        django_logger.info(
+            f"Request: {request.method} {request.path}",
+            extra={
+                "user": request.user if request.user.is_authenticated else "Anonymous"
+            },
+        )
+
+        response = self.get_response(request)
+
+        # Log response info
+        django_logger.info(f"Response: {response.status_code} for {request.path}")
+
+        return response
+
 
 class RestrictDirectAccessMiddleware(MiddlewareMixin):
     # List of URLs to restrict

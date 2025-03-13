@@ -1,10 +1,7 @@
 import sys
 import environ
-import logging
 
 from pathlib import Path
-from loguru import logger
-
 from django.conf import settings
 
 env = environ.Env(
@@ -83,6 +80,7 @@ MIDDLEWARE = [
         "config.middleware.RestrictDirectAccessMiddleware",
         "django.middleware.gzip.GZipMiddleware",
         "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
+        "config.middleware.RequestLoggingMiddleware",
     ]
     if middleware
 ]
@@ -235,66 +233,12 @@ STATICFILES_FINDERS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Django Cotton
-
+# Django Cotton (https://django-cotton.com/)
 COTTON_DIR = "components"
 
+# Override Django's default logging
+LOGGING = {"version": 1, "disable_existing_loggers": True}
 
-# Logging
-
-LOGGING_CONFIG = None
-
-# FIX: modify the logging configuration
-
-
-# === Step 1. Intercept standard logging and forward to Loguru ===
-class InterceptHandler(logging.Handler):
-    def emit(self, record):
-        try:
-            level = logger.level(record.levelname).name
-        except Exception:
-            level = record.levelno
-        frame, depth = logging.currentframe(), 2
-        while frame and frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
-            depth += 1
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
-        )
-
-
-# Remove existing standard logging handlers and install our intercept.
-logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-
-# === Step 2. Configure Loguru sinks to mimic Django logging ===
-
-# Clear any existing Loguru sinks.
-logger.remove()
-
-colors = {
-    "default": ("green"),
-    "wsgi/asgi": ("fg #3e424b"),
-}
-
-# File sink (similar to Django's file handler) writes WARNING and above to a file.
-logger.add(
-    "/tmp/WARNING.log",
-    level="WARNING",
-    colorize=False,  # File logs typically do not need color.
-    format="{time:YYYY-MM-DTHH:mm:ss,SSS!UTC} {level} [{name}] - {message}",
-    backtrace=False,
-    diagnose=False,
-)
-
-# Console sink (similar to Django's console handler) for general logs (INFO and above).
-logger.add(
-    sys.stderr,
-    level="INFO",
-    colorize=True,
-    format="<green>{time:YYYY-MM-DTHH:mm:ss,SSS!UTC}Z</green> {level} {file}:{line} {message}",
-    backtrace=False,
-    diagnose=False,
-)
 
 RECAPTCHA_PUBLIC_KEY = env("DJANGO_RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = env("DJANGO_RECAPTCHA_PRIVATE_KEY")
