@@ -2,7 +2,6 @@ import environ
 import multiprocessing
 from uvicorn.workers import UvicornWorker
 
-
 from config.logging_config import GunicornLogger
 
 env = environ.Env(
@@ -15,11 +14,7 @@ env = environ.Env(
     DJANGO_GUNICORN_DAEMON=(bool, False),
 )
 
-bind = (
-    env("DJANGO_UDS")
-    if env("DJANGO_UDS")
-    else f'{env("DJANGO_HOST")}:{env("DJANGO_PORT")}'
-)
+bind = env("DJANGO_UDS") or f'{env("DJANGO_HOST")}:{env("DJANGO_PORT")}'
 certfile = env("DJANGO_SSL_CERTFILE")
 keyfile = env("DJANGO_SSL_KEYFILE")
 workers = multiprocessing.cpu_count() * 2 + 1

@@ -1,0 +1,23 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+# gunicorn can let systemd know when it is ready
+Type=notify
+NotifyAccess=main
+# the specific user that our service will run as
+User=ubuntu
+Group=www-data
+EnvironmentFile=/home/ubuntu/app/.env.prod
+RuntimeDirectory=gunicorn
+WorkingDirectory=/home/ubuntu/app/
+ExecStart=/home/ubuntu/app/.venv/bin/gunicorn -c /home/ubuntu/app/gunicorn.conf.py config.asgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
