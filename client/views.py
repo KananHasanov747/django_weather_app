@@ -1,5 +1,5 @@
 from asgiref.sync import sync_to_async
-from loguru import logger as base_logger
+from loguru import logger
 from django_ratelimit.core import is_ratelimited
 from django_ratelimit.exceptions import Ratelimited
 
@@ -9,12 +9,11 @@ from django.contrib.auth.decorators import login_required
 
 from server.views import weather_view
 
-logger = base_logger.bind(name="client.views")
-
 
 # path('', views.index_view, name="index")
 @login_required
 async def index_view(request) -> HttpResponse:
+    logger.bind(view="index_view")
     # Check if the request is rate-limited
     if await sync_to_async(is_ratelimited)(
         request,
@@ -24,10 +23,11 @@ async def index_view(request) -> HttpResponse:
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
+        logger.warning("Rate-limited signup attempt from IP")
         # Handle rate limit exceeded
         raise Ratelimited()
 
-    logger.info("Index view")
+    logger.info("GET request to render index view")
     data = await weather_view(
         request,
         city=request.GET.get("city", "Tokyo"),

@@ -111,6 +111,3 @@ UVICORN_LOGGING_CONFIG = {
         "uvicorn.access": {"handlers": ["access"], "level": "INFO", "propagate": False},
     },
 }
-
-# Create a logger instance to use throughout the project
-django_logger = logger

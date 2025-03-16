@@ -2,13 +2,12 @@ import os
 import json
 
 from django.http import Http404
+from loguru import logger
 from servestatic.middleware import ServeStaticMiddleware
 
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
-
-from .logging_config import django_logger
 
 
 class RequestLoggingMiddleware:
@@ -17,7 +16,7 @@ class RequestLoggingMiddleware:
 
     def __call__(self, request):
         # Log request info
-        django_logger.info(
+        logger.info(
             f"Request: {request.method} {request.path}",
             # FIX: extra is not showing
             extra={
@@ -28,7 +27,7 @@ class RequestLoggingMiddleware:
         response = self.get_response(request)
 
         # Log response info
-        django_logger.info(f"Response: {response.status_code} for {request.path}")
+        logger.info(f"Response: {response.status_code} for {request.path}")
 
         return response
 

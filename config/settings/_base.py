@@ -8,7 +8,7 @@ from django.conf import settings
 # ENVIRONMENT #
 ###############
 
-env = environ.Env(
+env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(str, ""),
     DJANGO_POSTGRES=(bool, False),

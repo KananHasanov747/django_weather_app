@@ -7,17 +7,17 @@ if __name__ == "__main__":
     if "DJANGO_ENVIRONMENT" not in os.environ:
         raise ValueError("DJANGO_ENVIRONMENT must be set")
 
-    env = environ.Env(
+    env = environ.Env(  # Default value will only work if not in os.environ
         DJANGO_HOST=(str, "0.0.0.0"),
-        DJANGO_PORT=(str, "443"),
+        DJANGO_PORT=(int, 443),
         DJANGO_UDS=(str, ""),
         DJANGO_SSL=(bool, False),
-        DJANGO_ENV_NAME=(str, ""),
     )
-    environ.Env.read_env(env("DJANGO_ENV_NAME"))
+    environ.Env.read_env()
 
     from django.conf import settings
-    from config.logging_config import django_logger, UVICORN_LOGGING_CONFIG
+    from loguru import logger
+    from config.logging_config import UVICORN_LOGGING_CONFIG
 
     kwargs = {
         **(
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 "host": env("DJANGO_HOST"),
                 "port": env("DJANGO_PORT"),
             }
-            if env("DJANGO_UDS")
+            if not env("DJANGO_UDS")
             else {
                 "uds": env("DJANGO_UDS"),
             }
@@ -56,5 +56,5 @@ if __name__ == "__main__":
         "access_log": True,
     }
 
-    django_logger.info("Starting Uvicorn server")
+    logger.info("Starting Uvicorn server")
     uvicorn.run("config.asgi:application", **kwargs)

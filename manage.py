@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+import os
 import sys
 import environ
 
 
 def main():
     """Run administrative tasks."""
-    env = environ.Env(DJANGO_ENV_NAME=(str, ""))
-    environ.Env.read_env(env("DJANGO_ENV_NAME"))
+    if "DJANGO_ENVIRONMENT" not in os.environ:
+        raise ValueError("DJANGO_ENVIRONMENT must be set")
+    environ.Env.read_env()
 
     try:
         from django.core.management import execute_from_command_line

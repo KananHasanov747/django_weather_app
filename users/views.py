@@ -9,6 +9,7 @@ from django.http import (
 )
 from django.contrib.auth import alogin, aauthenticate, alogout
 from django.shortcuts import render, redirect, reverse
+from loguru import logger
 
 from users.forms import LoginForm, RegisterForm
 
@@ -17,18 +18,7 @@ from users.forms import LoginForm, RegisterForm
 async def login_view(
     request,  # ASGIRequest
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
-
-    # Check if the request is rate-limited
-    # if await sync_to_async(is_ratelimited)(
-    #     request,
-    #     fn=login_view,
-    #     key="ip",  # Rate limit based on IP address
-    #     rate="1/m",  # 10 request per second
-    #     method="POST",  # Apply to POST requests
-    #     increment=True,  # Increment the counter
-    # ):
-    #     # Handle rate limit exceeded
-    #     raise Ratelimited()
+    logger.bind(view="login_view")
 
     if request.method == "POST":
         form = LoginForm(data=request.POST)
@@ -38,9 +28,15 @@ async def login_view(
             user = await aauthenticate(request, username=username, password=password)
             if user:
                 await alogin(request, user)
+                logger.success(f"User '{username}' successfully logged in")
                 return redirect(reverse("client:index"))
+            else:
+                logger.warning(f"Failed login attempt for '{username}'")
+        else:
+            logger.error("Login form invalid")
 
     else:
+        logger.info("GET request to render the login form")
         form = LoginForm()
 
         template_name = "components/auth/login.html" if request.htmx else "index.html"
@@ -52,6 +48,8 @@ async def login_view(
 async def signup_view(
     request,  # ASGIRequest
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
+    logger.bind(view="signup_view")
+
     # Check if the request is rate-limited
     if await sync_to_async(is_ratelimited)(
         request,
@@ -61,6 +59,7 @@ async def signup_view(
         method="POST",  # Apply to POST requests
         increment=True,  # Increment the counter
     ):
+        logger.warning("Rate-limited signup attempt from IP")
         # Handle rate limit exceeded
         raise Ratelimited()
 
@@ -68,9 +67,13 @@ async def signup_view(
         form = RegisterForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
             await sync_to_async(form.save)()
+            logger.success(f"New user registered: {form.cleaned_data['username']}")
             return redirect(reverse("users:login"))
+        else:
+            logger.error("Signup form invalid")
 
     else:
+        logger.info("GET request to render the signup form")
         form = RegisterForm()
 
         template_name = "components/auth/signup.html" if request.htmx else "index.html"
@@ -82,5 +85,9 @@ async def signup_view(
 async def logout_view(
     request,  # ASGIRequest
 ) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
+    logger.bind(view="logout_view")
+
     await alogout(request)
+    logger.success("User logged out, redirecting to index page")
+
     return redirect(reverse("client:index"))

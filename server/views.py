@@ -3,6 +3,7 @@ from channels.db import database_sync_to_async, sync_to_async
 from django_ratelimit.core import is_ratelimited
 from django_ratelimit.exceptions import Ratelimited
 
+from loguru import logger
 from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
 from ninja.decorators import decorate_view
@@ -32,6 +33,8 @@ def get_cities(q) -> List:
 @api.get("/cities", response=List[CitySchema], url_name="city")
 @decorate_view(cache_page(60 * 10, cache="memcached"))
 async def cities_view(request, q: Optional[str] = Query(None)) -> List:
+    logger.bind(view="cities_view")
+
     # Check if the request is rate-limited
     if await sync_to_async(is_ratelimited)(
         request,
@@ -41,6 +44,7 @@ async def cities_view(request, q: Optional[str] = Query(None)) -> List:
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
+        logger.warning("Rate-limited signup attempt from IP")
         # Handle rate limit exceeded
         raise Ratelimited()
 
@@ -66,6 +70,7 @@ class WeatherSchema(BaseModel):
 async def weather_view(
     request, city: str, country: Optional[str] = Query(None)
 ) -> Dict[str, None]:
+    logger.bind(view="weather_view")
 
     # Check if the request is rate-limited
     if await sync_to_async(is_ratelimited)(
@@ -76,11 +81,14 @@ async def weather_view(
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
+        logger.warning("Rate-limited signup attempt from IP")
         # Handle rate limit exceeded
         raise Ratelimited()
+
     try:
         weather = WeatherAPI(city=city, country=country)
         data = await weather.data()
+        logger.success(f"Fetched the city ({data['city']}, {data['country']})")
         return data
     except Exception as e:
         raise e
