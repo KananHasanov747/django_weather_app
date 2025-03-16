@@ -4,6 +4,10 @@ import environ
 from pathlib import Path
 from django.conf import settings
 
+###############
+# ENVIRONMENT #
+###############
+
 env = environ.Env(
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(str, ""),
@@ -22,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-SECRET_KEY_FALLBACKS = env("DJANGO_SECRET_KEY_FALLBACKS").split(",")
+SECRET_KEY_FALLBACKS = str(env("DJANGO_SECRET_KEY_FALLBACKS")).split(",")
 
 TESTING = "pytest" in sys.argv
 
@@ -30,7 +34,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = str(env("DJANGO_ALLOWED_HOSTS")).split(",")
 
 AUTH_USER_MODEL = "users.User"
 
@@ -38,7 +42,9 @@ CSRF_COOKIE_SECURE = True
 
 SESSION_COOKIE_SECURE = True
 
-# Application definition
+##########################
+# APPLICATION DEFINITION #
+##########################
 
 INSTALLED_APPS = [
     app
@@ -80,7 +86,7 @@ MIDDLEWARE = [
         "config.middleware.RestrictDirectAccessMiddleware",
         "django.middleware.gzip.GZipMiddleware",
         "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
-        "config.middleware.RequestLoggingMiddleware",
+        # "config.middleware.RequestLoggingMiddleware",
     ]
     if middleware
 ]
@@ -120,8 +126,9 @@ ASGI_APPLICATION = "config.asgi.application"
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+######################
+# DATABASE & CACHING #
+######################
 
 # TODO: add the ability to switch between databases (like in CACHES)
 DATABASES = {
@@ -236,9 +243,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Django Cotton (https://django-cotton.com/)
 COTTON_DIR = "components"
 
-# Override Django's default logging
-LOGGING = {"version": 1, "disable_existing_loggers": True}
+LOGGING_CONFIG = None
 
+####################
+# GOOGLE reCAPTCHA #
+####################
 
 RECAPTCHA_PUBLIC_KEY = env("DJANGO_RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = env("DJANGO_RECAPTCHA_PRIVATE_KEY")

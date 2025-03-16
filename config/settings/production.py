@@ -2,10 +2,5 @@ from ._base import *
 
 DEBUG = False
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = False
-SECURE_CONTENT_TYPE_NOSNIFF = True
-
 # ServeStatic cache policy
 SERVESTATIC_MAX_AGE = 31536000  # 1 year

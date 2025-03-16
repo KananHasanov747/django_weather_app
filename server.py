@@ -2,25 +2,34 @@ import os
 import uvicorn
 import environ
 
+
 if __name__ == "__main__":
     if "DJANGO_ENVIRONMENT" not in os.environ:
         raise ValueError("DJANGO_ENVIRONMENT must be set")
 
     env = environ.Env(
-        DJANGO_PORT=(int, 443),
         DJANGO_HOST=(str, "0.0.0.0"),
+        DJANGO_PORT=(str, "443"),
+        DJANGO_UDS=(str, ""),
         DJANGO_SSL=(bool, False),
         DJANGO_ENV_NAME=(str, ""),
     )
     environ.Env.read_env(env("DJANGO_ENV_NAME"))
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     from django.conf import settings
     from config.logging_config import django_logger, UVICORN_LOGGING_CONFIG
 
     kwargs = {
-        "host": env("DJANGO_HOST"),  # Bind to all interfaces
-        "port": env("DJANGO_PORT"),
+        **(
+            {
+                "host": env("DJANGO_HOST"),
+                "port": env("DJANGO_PORT"),
+            }
+            if env("DJANGO_UDS")
+            else {
+                "uds": env("DJANGO_UDS"),
+            }
+        ),
         "log_config": UVICORN_LOGGING_CONFIG,
         "log_level": "debug" if settings.DEBUG else "info",
         "use_colors": True,
