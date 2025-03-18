@@ -15,7 +15,7 @@
                     </span>
                     <div class="mx-auto">
                         <picture>
-                            <source srcest="{% static data.daily|index:forloop.counter0|index:'icon_url'|index:'webp' %}"
+                            <source srcset="{% static data.daily|index:forloop.counter0|index:'icon_url'|index:'webp' %}"
                                     type="image/webp">
                             <img src="{% static data.daily|index:forloop.counter0|index:'icon_url'|index:'png' %}"
                                  alt="{{ data.daily|index:forloop.counter0|index:'description' }}"
