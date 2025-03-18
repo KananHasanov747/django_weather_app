@@ -14,9 +14,13 @@
                         {% endif %}
                     </span>
                     <div class="mx-auto">
-                        <img src="{% static data.daily|index:forloop.counter0|index:'icon_url' %}"
-                             alt="{{ data.daily|index:forloop.counter0|index:'description' }}"
-                             class="w-20 h-20 2sm:w-25 2sm:h-25 md:w-30 md:h-30 2md:w-20 2md:h-20" />
+                        <picture>
+                            <source srcest="{% static data.daily|index:forloop.counter0|index:'icon_url'|index:'webp' %}"
+                                    type="image/webp">
+                            <img src="{% static data.daily|index:forloop.counter0|index:'icon_url'|index:'png' %}"
+                                 alt="{{ data.daily|index:forloop.counter0|index:'description' }}"
+                                 class="w-20 h-20 2sm:w-25 2sm:h-25 md:w-30 md:h-30 2md:w-20 2md:h-20" />
+                        </picture>
                     </div>
                     <div class="text-right text-base text-dark-white">
                         <span class="text-light-white font-semibold">{{ data.daily|index:forloop.counter0|index:'temperature_max' }}°</span>/

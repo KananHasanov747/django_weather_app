@@ -1,13 +1,25 @@
-import os
-import json
-
 from django.http import Http404
 from loguru import logger
-from servestatic.middleware import ServeStaticMiddleware
-
 from django.conf import settings
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.deprecation import MiddlewareMixin
+
+
+class XForwardedForMiddleware:
+    """Deals with empty REMOTE_ADDR"""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Modify the request as necessary
+        if "HTTP_X_FORWARDED_FOR" in request.META:
+            request.META["HTTP_X_PROXY_REMOTE_ADDR"] = request.META.get("REMOTE_ADDR")
+            parts = request.META["HTTP_X_FORWARDED_FOR"].split(",", 1)
+            request.META["REMOTE_ADDR"] = parts[0]
+
+        # Call the next middleware or view
+        response = self.get_response(request)
+        return response
 
 
 class RequestLoggingMiddleware:
@@ -58,54 +70,4 @@ class RestrictDirectAccessMiddleware(MiddlewareMixin):
                     raise Http404()
 
         # Not a restricted URL, proceed normally
-        return None
-
-
-class CustomServeStaticMiddleware(ServeStaticMiddleware):
-    """
-    Custom version of ServeStaticMiddleware
-    for serving '.png', '.jpg', and '.jpeg' as '.webp'
-    with a fallback
-    """
-
-    IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Load the manifest to map original names to hashed names
-        self.manifest = self.load_manifest()
-
-    def load_manifest(self):
-        if staticfiles_storage.manifest_name and staticfiles_storage.exists(
-            staticfiles_storage.manifest_name
-        ):
-            with staticfiles_storage.open(staticfiles_storage.manifest_name) as f:
-                return json.load(f)
-        return {"paths": {}}
-
-    async def __call__(self, request):
-        accept = request.headers.get("Accept", "")
-        client_accepts_webp = "image/webp" in accept
-        path_info = request.path_info.replace("/static/", "")
-
-        # Attempt to find the WebP version using the original filename
-        original_name = self.get_original_name(path_info)
-        if client_accepts_webp and original_name:
-            webp_original_name = os.path.splitext(original_name)[0] + ".webp"
-            webp_hashed_name = self.manifest["paths"].get(webp_original_name)
-            if webp_hashed_name:
-                # Serve the hashed WebP file
-                lookup_key = f"{self.static_prefix}{webp_hashed_name}"
-                static_file = self.files.get(lookup_key)
-                if static_file:
-                    return await self.aserve(static_file, request)
-
-        # Fallback to original logic
-        return await super().__call__(request)
-
-    def get_original_name(self, hashed_path):
-        # Reverse lookup to find the original filename from the hashed path
-        for original, hashed in self.manifest.get("paths", {}).items():
-            if hashed == hashed_path:
-                return original
         return None

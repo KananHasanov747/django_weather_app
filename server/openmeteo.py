@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 
+from typing import Dict
 from datetime import datetime, time
 from dataclasses import dataclass
 
@@ -18,7 +19,7 @@ class ForecastIcon:
 class CurrentWeather:
     temperature: float
     apparent_temperature: float
-    icon_url: str
+    icon_url: Dict
     description: str
     rain: float
     wind_speed: float
@@ -28,7 +29,7 @@ class CurrentWeather:
 class HourlyWeather:
     date: str
     is_day: bool
-    icon_url: str
+    icon_url: Dict
     description: str
     temperature: float
     humidity: float
@@ -38,7 +39,7 @@ class HourlyWeather:
 class DailyWeather:
     time: str
     day_of_week: str
-    icon_url: str
+    icon_url: Dict
     description: str
     temperature_max: float
     temperature_min: float
@@ -46,159 +47,161 @@ class DailyWeather:
 
 
 class WeatherAPI:
+    static_location = "assets/icons/"
+    image_formats = ["webp", "png"]
     forecast_icons = {
         0: {
             "description": "Sunny",
-            "day": "assets/icons/clear_sky.png",
-            "night": "assets/icons/clear_sky_night.png",
+            "day": "clear_sky",
+            "night": "clear_sky_night",
         },
         1: {
             "description": "Mainly Sunny",
-            "day": "assets/icons/clear_sky.png",
-            "night": "assets/icons/clear_sky_night.png",
+            "day": "clear_sky",
+            "night": "clear_sky_night",
         },
         2: {
             "description": "Partly Cloudy",
-            "day": "assets/icons/few_clouds.png",
-            "night": "assets/icons/few_clouds_night.png",
+            "day": "few_clouds",
+            "night": "few_clouds_night",
         },
         3: {
             "description": "Cloudy",
-            "day": "assets/icons/scattered_clouds.png",
-            "night": "assets/icons/scattered_clouds.png",
+            "day": "scattered_clouds",
+            "night": "scattered_clouds",
         },
         4: {
             "description": "Broken Cloudy",
-            "day": "assets/icons/broken_clouds.png",
-            "night": "assets/icons/broken_clouds.png",
+            "day": "broken_clouds",
+            "night": "broken_clouds",
         },
         45: {
             "description": "Foggy",
-            "day": "assets/icons/mist.png",
-            "night": "assets/icons/mist.png",
+            "day": "mist",
+            "night": "mist",
         },
         48: {
             "description": "Rime Fog",
-            "day": "assets/icons/mist.png",
-            "night": "assets/icons/mist.png",
+            "day": "mist",
+            "night": "mist",
         },
         51: {
             "description": "Light Drizzle",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         53: {
             "description": "Drizzle",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         55: {
             "description": "Heavy Drizzle",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         56: {
             "description": "Light Freezing Drizzle",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         57: {
             "description": "Freezing Drizzle",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         61: {
             "description": "Light Rain",
-            "day": "assets/icons/rain.png",
-            "night": "assets/icons/rain.png",
+            "day": "rain",
+            "night": "rain",
         },
         63: {
             "description": "Rain",
-            "day": "assets/icons/rain.png",
-            "night": "assets/icons/rain.png",
+            "day": "rain",
+            "night": "rain",
         },
         65: {
             "description": "Heavy Rain",
-            "day": "assets/icons/rain.png",
-            "night": "assets/icons/rain.png",
+            "day": "rain",
+            "night": "rain",
         },
         66: {
             "description": "Light Freezing Rain",
-            "day": "assets/icons/rain.png",
-            "night": "assets/icons/rain.png",
+            "day": "rain",
+            "night": "rain",
         },
         67: {
             "description": "Freezing Rain",
-            "day": "assets/icons/rain.png",
-            "night": "assets/icons/rain.png",
+            "day": "rain",
+            "night": "rain",
         },
         71: {
             "description": "Light Snow",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         73: {
             "description": "Snow",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         75: {
             "description": "Heavy Snow",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         77: {
             "description": "Snow Grains",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         80: {
             "description": "Light Showers",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         81: {
             "description": "Showers",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         82: {
             "description": "Heavy Showers",
-            "day": "assets/icons/shower_rain.png",
-            "night": "assets/icons/shower_rain.png",
+            "day": "shower_rain",
+            "night": "shower_rain",
         },
         85: {
             "description": "Light Snow Showers",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         86: {
             "description": "Snow Showers",
-            "day": "assets/icons/snow.png",
-            "night": "assets/icons/snow.png",
+            "day": "snow",
+            "night": "snow",
         },
         95: {
             "description": "Thunderstorm",
-            "day": "assets/icons/thunderstorm.png",
-            "night": "assets/icons/thunderstorm.png",
+            "day": "thunderstorm",
+            "night": "thunderstorm",
         },
         96: {
             "description": "Light Thunderstorms With Hail",
-            "day": "assets/icons/thunderstorm.png",
-            "night": "assets/icons/thunderstorm.png",
+            "day": "thunderstorm",
+            "night": "thunderstorm",
         },
         99: {
             "description": "Thunderstorm With Hail",
-            "day": "assets/icons/thunderstorm.png",
-            "night": "assets/icons/thunderstorm.png",
+            "day": "thunderstorm",
+            "night": "thunderstorm",
         },
     }
 
-    def __init__(self, city, country):
+    def __init__(self, city, country) -> None:
         self.city = city
         self.country = country
 
-    async def _init(self):
+    async def _init(self) -> None:
         try:
             _ = await City.objects.aget(city=self.city, country=self.country)
             self.lat = _.lat
@@ -206,7 +209,7 @@ class WeatherAPI:
         except City.DoesNotExist:
             raise ValueError(f"City({self.city}, {self.country}) not found")
 
-    def params(self):
+    def params(self) -> Dict:
         return {
             "latitude": self.lat,
             "longitude": self.lon,
@@ -252,14 +255,18 @@ class WeatherAPI:
         current = response.get("current", None)
         hourly = response.get("hourly", None)
         daily = response.get("daily", None)
+        current_icon_name = WeatherAPI.forecast_icons[
+            current.get("weather_code", None)
+        ]["day" if bool(current.get("is_day", None)) else "night"]
 
         current_weather = CurrentWeather(
             temperature=round(current.get("temperature_2m", None)),
             apparent_temperature=round(current.get("apparent_temperature", None)),
             # "is_day": bool(current.get("is_day", None)),
-            icon_url=WeatherAPI.forecast_icons[current.get("weather_code", None)][
-                "day" if bool(current.get("is_day", None)) else "night"
-            ],
+            icon_url={
+                format: self.static_location + current_icon_name + f".{format}"
+                for format in self.image_formats
+            },
             description=WeatherAPI.forecast_icons[current.get("weather_code", None)][
                 "description"
             ],
@@ -275,6 +282,15 @@ class WeatherAPI:
             hourly.get("weather_code")[:24:4],
             hourly.get("time")[:24:4],
         ):
+            hourly_icon_name = WeatherAPI.forecast_icons[w_code][
+                (
+                    "day"
+                    if time(5, 0)
+                    <= datetime.strptime(dt, "%Y-%m-%dT%H:%M").time()
+                    < time(20, 0)
+                    else "night"
+                )
+            ]
             hourly_weathers.append(
                 HourlyWeather(
                     date=datetime.strptime(dt, "%Y-%m-%dT%H:%M").strftime("%H:%M"),
@@ -285,15 +301,10 @@ class WeatherAPI:
                         < time(20, 0)
                         else False
                     ),
-                    icon_url=WeatherAPI.forecast_icons[w_code][
-                        (
-                            "day"
-                            if time(5, 0)
-                            <= datetime.strptime(dt, "%Y-%m-%dT%H:%M").time()
-                            < time(20, 0)
-                            else "night"
-                        )
-                    ],
+                    icon_url={
+                        format: self.static_location + hourly_icon_name + f".{format}"
+                        for format in self.image_formats
+                    },
                     description=WeatherAPI.forecast_icons[w_code]["description"],
                     temperature=round(hourly.get("temperature_2m", None)[0]),
                     humidity=hourly.get("relative_humidity_2m", None)[0],
@@ -308,11 +319,15 @@ class WeatherAPI:
             daily.get("temperature_2m_min", None),
             daily.get("uv_index_max", None),
         ):
+            daily_icon_name = WeatherAPI.forecast_icons[w_code]["day"]
             daily_weathers.append(
                 DailyWeather(
                     time=dt,
                     day_of_week=datetime.strptime(dt, "%Y-%m-%d").strftime("%A"),
-                    icon_url=WeatherAPI.forecast_icons[w_code]["day"],
+                    icon_url={
+                        format: self.static_location + daily_icon_name + f".{format}"
+                        for format in self.image_formats
+                    },
                     description=WeatherAPI.forecast_icons[w_code]["description"],
                     temperature_max=round(max),
                     temperature_min=round(min),

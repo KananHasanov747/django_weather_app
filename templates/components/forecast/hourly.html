@@ -9,8 +9,12 @@
                     <div class="flex mx-auto flex-col items-center">
                         <span class="text-sm text-dark-white font-semibold">{{ data.hourly|index:forloop.counter0|index:'date' }}</span>
                         <span class="max-w-8 max-h-8 xl:max-w-15 xl:max-h-15">
-                            <img src="{% static data.hourly|index:forloop.counter0|index:'icon_url' %}"
-                                 alt="{{ data.hourly|index:forloop.counter0|index:'description' }}" />
+                            <picture>
+                                <source srcset="{% static data.hourly|index:forloop.counter0|index:'icon_url'|index:'webp' %}"
+                                        type="image/webp">
+                                <img src="{% static data.hourly|index:forloop.counter0|index:'icon_url'|index:'png' %}"
+                                     alt="{{ data.hourly|index:forloop.counter0|index:'description' }}" />
+                            </picture>
                         </span>
                         <span class="text-2xl text-light-white">{{ data.hourly|index:forloop.counter0|index:'temperature' }}°</span>
                     </div>

@@ -11,8 +11,12 @@
                 <span class="text-6xl text-light-white font-medium">{{ data.current.temperature }}°</span>
             </div>
         </div>
-        <img class="my-auto h-30 md:h-40 3md:h-48.5"
-             src="{% static data.current.icon_url %}"
-             alt="{{ data.current.description }}" />
+        <picture>
+            <source srcset="{% static data.current.icon_url|index:'webp' %}"
+                    type="image/webp">
+            <img src="{% static data.current.icon_url|index:'png' %}"
+                 alt="{{ data.current.description }}"
+                 class="my-auto h-30 md:h-40 3md:h-48.5" />
+        </picture>
     </div>
 </div>

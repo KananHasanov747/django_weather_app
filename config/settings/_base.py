@@ -2,7 +2,8 @@ import sys
 import environ
 
 from pathlib import Path
-from django.conf import settings
+
+# from django.conf import settings
 
 ###############
 # ENVIRONMENT #
@@ -56,7 +57,7 @@ INSTALLED_APPS = [
         "django.contrib.messages",
         "django.contrib.staticfiles",
         # plugins and tools
-        "servestatic.runserver_nostatic" if settings.DEBUG else False,
+        # "servestatic.runserver_nostatic" if settings.DEBUG else False,
         "django_htmx",
         "django_cotton",
         "django_recaptcha",
@@ -71,9 +72,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     middleware
     for middleware in [
+        "config.middleware.XForwardedForMiddleware",  # use only if REMOTE_ADDR is empty
         "django.middleware.security.SecurityMiddleware",
         (
-            "config.middleware.CustomServeStaticMiddleware"
+            "servestatic.middleware.ServeStaticMiddleware"
             if not env("DJANGO_NGINX")
             else False
         ),
@@ -179,7 +181,7 @@ STORAGES = {
         else {
             "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
             "staticfiles": {
-                "BACKEND": "config.storage.CompressedManifestStaticFilesStorage",
+                "BACKEND": "servestatic.storage.CompressedManifestStaticFilesStorage",
             },
         }
     )
