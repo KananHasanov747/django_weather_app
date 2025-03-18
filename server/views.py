@@ -91,4 +91,5 @@ async def weather_view(
         logger.success(f"Fetched the city ({data['city']}, {data['country']})")
         return data
     except Exception as e:
+        logger.exception(f"Error during index_view processing: {e}")
         raise e

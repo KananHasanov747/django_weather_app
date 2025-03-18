@@ -14,6 +14,7 @@ from server.views import weather_view
 @login_required
 async def index_view(request) -> HttpResponse:
     logger.bind(view="index_view")
+
     # Check if the request is rate-limited
     if await sync_to_async(is_ratelimited)(
         request,
@@ -28,14 +29,18 @@ async def index_view(request) -> HttpResponse:
         raise Ratelimited()
 
     logger.info("GET request to render index view")
-    data = await weather_view(
-        request,
-        city=request.GET.get("city", "Tokyo"),
-        country=request.GET.get("country", "Japan"),
-    )
+    try:
+        data = await weather_view(
+            request,
+            city=request.GET.get("city", "Tokyo"),
+            country=request.GET.get("country", "Japan"),
+        )
 
-    template_name = "components/weather.html" if request.htmx else "index.html"
+        template_name = "components/weather.html" if request.htmx else "index.html"
 
-    return await sync_to_async(render, thread_sensitive=False)(
-        request, template_name, {"data": data}
-    )
+        return await sync_to_async(render, thread_sensitive=False)(
+            request, template_name, {"data": data}
+        )
+    except Exception as e:
+        logger.exception(f"Error during index_view processing: {e}")
+        return HttpResponse("<h1>Internal Server Error</h1>", status=500)

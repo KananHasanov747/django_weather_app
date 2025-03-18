@@ -63,6 +63,7 @@ logger.add(
     "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - {message}",
     level="DEBUG" if settings.DEBUG else "INFO",
     colorize=True,
+    diagnose=settings.DEBUG,
 )
 
 LOG_DIR = os.path.join(settings.BASE_DIR, "logs")
@@ -75,6 +76,7 @@ logger.add(
     level="DEBUG" if settings.DEBUG else "INFO",
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | {message}",
     colorize=True,
+    diagnose=True,
 )
 
 logger.add(
@@ -82,6 +84,7 @@ logger.add(
     level="ERROR",
     rotation="100 MB",
     format="{time:YYYY-MM-DD HH:mm:ss} | <level>{level: <8}</level> | {file} | {line} | {message}",
+    diagnose=True,
 )
 
 
