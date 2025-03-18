@@ -1,6 +1,6 @@
 from ._base import *
 
-DEBUG = True
+DEBUG = False
 
 # Uncomment if using http protocol in production
 # CSRF_COOKIE_SECURE = False
