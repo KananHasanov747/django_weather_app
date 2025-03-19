@@ -31,7 +31,7 @@ def get_cities(q) -> List:
 
 
 @api.get("/cities", response=List[CitySchema], url_name="city")
-@decorate_view(cache_page(60 * 10, cache="memcached"))
+@decorate_view(cache_page(60 * 10))
 async def cities_view(request, q: Optional[str] = Query(None)) -> List:
     logger.bind(view="cities_view")
 
@@ -66,7 +66,7 @@ class WeatherSchema(BaseModel):
 
 
 @api.get("/weather", response=WeatherSchema, url_name="weather")
-@decorate_view(cache_page(60 * 10, cache="memcached"))
+@decorate_view(cache_page(60 * 10))
 async def weather_view(
     request, city: str, country: Optional[str] = Query(None)
 ) -> Dict[str, None]:

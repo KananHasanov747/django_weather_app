@@ -21,10 +21,6 @@ env = environ.Env(  # Default value will only work if not in os.environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 SECRET_KEY_FALLBACKS = str(env("DJANGO_SECRET_KEY_FALLBACKS")).split(",")
@@ -37,11 +33,31 @@ INTERNAL_IPS = [
 
 ALLOWED_HOSTS = str(env("DJANGO_ALLOWED_HOSTS")).split(",")
 
-AUTH_USER_MODEL = "users.User"
-
 CSRF_COOKIE_SECURE = True
 
 SESSION_COOKIE_SECURE = True
+
+
+##################
+# Authentication #
+##################
+
+AUTH_USER_MODEL = "users.User"
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
 
 ##########################
 # APPLICATION DEFINITION #
@@ -156,16 +172,12 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "database_cache",  # table name
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "127.0.0.1:11211",
     },
     "redis": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379",
-    },
-    "memcached": {
-        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "127.0.0.1:11211",
     },
 }
 
@@ -188,25 +200,6 @@ STORAGES = {
 }
 
 FIXTURE_DIRS = (BASE_DIR / "fixtures",)
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
 
 
 # Internationalization
