@@ -1,12 +1,13 @@
 from loguru import logger
 from typing import Dict, List, Optional
+from aiocache import cached, RedisCache
+from aiocache.serializers import PickleSerializer
 from channels.db import database_sync_to_async, sync_to_async
 from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
 from ninja.decorators import decorate_view
 
 from django.http import JsonResponse
-from django.views.decorators.cache import cache_page
 from django_ratelimit.core import is_ratelimited
 from django_ratelimit.exceptions import Ratelimited
 
@@ -31,7 +32,14 @@ def get_cities(q) -> List:
 
 
 @api.get("/cities", response=List[CitySchema], url_name="city")
-@decorate_view(cache_page(60 * 10))
+@decorate_view(
+    cached(
+        cache=RedisCache,
+        key="key",
+        serializer=PickleSerializer(),
+        namespace="server_api",
+    )
+)
 async def cities_view(request, q: Optional[str] = Query(None)) -> List:
     logger.bind(view="cities_view")
 
@@ -66,7 +74,14 @@ class WeatherSchema(BaseModel):
 
 
 @api.get("/weather", response=WeatherSchema, url_name="weather")
-@decorate_view(cache_page(60 * 10))
+@decorate_view(
+    cached(
+        cache=RedisCache,
+        key="key",
+        serializer=PickleSerializer(),
+        namespace="server_api",
+    )
+)
 async def weather_view(
     request, city: str, country: Optional[str] = Query(None)
 ) -> Dict[str, None]:

@@ -1,9 +1,10 @@
 import os
+import asyncio
 import uvicorn
 import environ
 
 
-if __name__ == "__main__":
+async def run():
     if "DJANGO_ENVIRONMENT" not in os.environ:
         raise ValueError("DJANGO_ENVIRONMENT must be set")
 
@@ -15,9 +16,13 @@ if __name__ == "__main__":
     )
     environ.Env.read_env()
 
-    from django.conf import settings
     from loguru import logger
+    from aiocache import Cache
+    from django.conf import settings
     from config.logging_config import UVICORN_LOGGING_CONFIG
+
+    cache = Cache(Cache.REDIS, endpoint="127.0.0.1", port=6379, namespace="main")
+    await cache.delete("key")
 
     kwargs = {
         **(
@@ -58,3 +63,7 @@ if __name__ == "__main__":
 
     logger.info("Starting Uvicorn server")
     uvicorn.run("config.asgi:application", **kwargs)
+
+
+if __name__ == "__main__":
+    asyncio.run(run())
