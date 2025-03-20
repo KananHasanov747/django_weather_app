@@ -1,14 +1,14 @@
+from loguru import logger
 from typing import Dict, List, Optional
 from channels.db import database_sync_to_async, sync_to_async
-from django_ratelimit.core import is_ratelimited
-from django_ratelimit.exceptions import Ratelimited
-
-from loguru import logger
 from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
 from ninja.decorators import decorate_view
+
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
+from django_ratelimit.core import is_ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
 from server.models import City
 from server.openmeteo import WeatherAPI, CurrentWeather, HourlyWeather, DailyWeather
@@ -77,7 +77,7 @@ async def weather_view(
         request,
         fn=weather_view,
         key="ip",  # Rate limit based on IP address
-        rate="1/s",  # 1 request per second
+        rate="4/s",  # 1 request per second
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
