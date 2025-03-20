@@ -1,4 +1,4 @@
-from ._base import *
+from ._base import *  # noqa
 
 DEBUG = False
 

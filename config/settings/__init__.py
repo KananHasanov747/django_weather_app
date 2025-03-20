@@ -3,8 +3,8 @@ import environ
 env = environ.Env(DJANGO_ENVIRONMENT=(str, "development"))
 
 if env("DJANGO_ENVIRONMENT") == "production":
-    from .production import *
+    from .production import *  # noqa
 elif env("DJANGO_ENVIRONMENT") == "staging":
-    from .staging import *
+    from .staging import *  # noqa
 else:
-    from .development import *
+    from .development import *  # noqa

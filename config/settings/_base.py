@@ -1,9 +1,15 @@
+###########
+# IMPORTS #
+###########
+
+# Python imports
 import sys
 import environ
-
 from pathlib import Path
 
-# from django.conf import settings
+# Django imports
+from django.conf import settings
+from django.core.management.utils import get_random_secret_key
 
 ###############
 # ENVIRONMENT #
@@ -15,7 +21,7 @@ env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
     DJANGO_REDIS=(bool, False),
-    DJANGO_SECRET_KEY_FALLBACKS=(str, ""),
+    DJANGO_SECRET_KEY_FALLBACKS=(str, get_random_secret_key()),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +43,22 @@ CSRF_COOKIE_SECURE = True
 
 SESSION_COOKIE_SECURE = True
 
+ROOT_URLCONF = "config.urls"
+
+ASGI_APPLICATION = "config.asgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
+
+########################
+# INTERNATIONALIZATION #
+########################
+
+LANGUAGE_CODE = "en-us"
+
+TIME_ZONE = "UTC"
+
+USE_I18N = True
+
+USE_TZ = True
 
 ##################
 # Authentication #
@@ -59,9 +81,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-##########################
-# APPLICATION DEFINITION #
-##########################
+######################################
+# APPLICATIONS/MIDDLEWARES/TEMPLATES #
+######################################
 
 INSTALLED_APPS = [
     app
@@ -73,7 +95,7 @@ INSTALLED_APPS = [
         "django.contrib.messages",
         "django.contrib.staticfiles",
         # plugins and tools
-        # "servestatic.runserver_nostatic" if settings.DEBUG else False,
+        "servestatic.runserver_nostatic" if settings.DEBUG else False,
         "django_htmx",
         "django_cotton",
         "django_recaptcha",
@@ -109,8 +131,6 @@ MIDDLEWARE = [
     if middleware
 ]
 
-ROOT_URLCONF = "config.urls"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -140,13 +160,9 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "config.asgi.application"
-WSGI_APPLICATION = "config.wsgi.application"
-
-
-######################
-# DATABASE & CACHING #
-######################
+############################
+# DATABASE/CACHES/STORAGES #
+############################
 
 # TODO: add the ability to switch between databases (like in CACHES)
 DATABASES = {
@@ -172,12 +188,12 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "127.0.0.1:11211",
-    },
-    "redis": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379",
+    },
+    "database": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "database_cache",
     },
 }
 
@@ -201,21 +217,9 @@ STORAGES = {
 
 FIXTURE_DIRS = (BASE_DIR / "fixtures",)
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+################
+# STATIC FILES #
+################
 
 STATIC_URL = "/static/"
 
@@ -234,11 +238,11 @@ STATICFILES_FINDERS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+#################
+# DJANGO COTTON #
+#################
 
-# Django Cotton (https://django-cotton.com/)
 COTTON_DIR = "components"
-
-LOGGING_CONFIG = None
 
 ####################
 # GOOGLE reCAPTCHA #
@@ -246,3 +250,9 @@ LOGGING_CONFIG = None
 
 RECAPTCHA_PUBLIC_KEY = env("DJANGO_RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = env("DJANGO_RECAPTCHA_PRIVATE_KEY")
+
+#################
+# MISCELLANEOUS #
+#################
+
+LOGGING_CONFIG = None
