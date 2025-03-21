@@ -22,7 +22,6 @@ async def run():
     from config.logging_config import UVICORN_LOGGING_CONFIG
 
     cache = Cache(Cache.REDIS, endpoint="127.0.0.1", port=6379, namespace="main")
-    await cache.delete("key")
 
     kwargs = {
         **(
