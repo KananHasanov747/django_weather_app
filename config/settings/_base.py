@@ -18,9 +18,9 @@ from django.core.management.utils import get_random_secret_key
 env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_LOG_LEVEL=(str, "INFO"),
     DJANGO_ALLOWED_HOSTS=(str, ""),
+    DJANGO_CSRF_TRUSTED_HOSTS=(str, ""),
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
-    DJANGO_REDIS=(bool, False),
     DJANGO_SECRET_KEY_FALLBACKS=(str, get_random_secret_key()),
 )
 
@@ -110,7 +110,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     middleware
     for middleware in [
-        "config.middleware.XForwardedForMiddleware",  # use only if REMOTE_ADDR is empty
+        # "config.middleware.XForwardedForMiddleware",  # https://stackoverflow.com/a/34254843
         "django.middleware.security.SecurityMiddleware",
         (
             "servestatic.middleware.ServeStaticMiddleware"
@@ -126,7 +126,6 @@ MIDDLEWARE = [
         "config.middleware.RestrictDirectAccessMiddleware",
         "django.middleware.gzip.GZipMiddleware",
         "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
-        # "config.middleware.RequestLoggingMiddleware",
     ]
     if middleware
 ]
@@ -189,11 +188,10 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
-    },
-    "database": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "database_cache",
+        "LOCATION": [
+            "redis://127.0.0.1:6379",
+            "redis://redis-cache:6379",  # compose.redis.yml
+        ],
     },
 }
 

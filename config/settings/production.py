@@ -2,6 +2,7 @@ from ._base import *  # noqa
 
 DEBUG = False
 
+CSRF_TRUSTED_ORIGINS = env("DJANGO_CSRF_TRUSTED_HOSTS").split()
 # Uncomment if using http protocol in production
 # CSRF_COOKIE_SECURE = False
 # CSRF_COOKIE_HTTPONLY = False
