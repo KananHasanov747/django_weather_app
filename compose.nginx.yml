@@ -1,22 +1,17 @@
 services:
   app:
-    environment:
-      DJANGO_NGINX: True
-      DJANGO_PORT: "8443"
     volumes:
-      - static_volume:/app/staticfiles:rw # Nginx serves static (rw -> read/write)
+      - static_volume:/app/staticfiles
 
   nginx:
     image: nginx:stable-alpine
     env_file:
-      # NOTE: the DJANGO_PORT in .env.prod must differ from Nginx host (8000) and container (443) ports
+      # NOTE: the DJANGO_PORT in .env.prod must differ from Nginx host (8000) and container (80) ports
       - .env.prod
     ports:
-      - "8000:443" # host:container
+      - "8000:80" # *:{<1024} for rootful Podman machine
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certs/weather.com-key.pem:/etc/ssl/certs/weather.com-key.pem
-      - ./certs/weather.com-cert.pem:/etc/ssl/certs/weather.com-cert.pem
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - static_volume:/usr/share/nginx/html/static
     networks:
       - app_network

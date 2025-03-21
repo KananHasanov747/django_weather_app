@@ -177,7 +177,7 @@ cython_debug/
 bruno-workflows/
 images/
 scripts/
-# staticfiles/
+staticfiles/
 filtered_worldcities.csv
 tailwind*
 todo.md

@@ -6,17 +6,14 @@ services:
     image: django_weather_app
     env_file:
       - .env.prod
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.production
-    volumes:
-      - ./certs/weather.com-key.pem:/etc/ssl/certs/weather.com-key.pem
-      - ./certs/weather.com-cert.pem:/etc/ssl/certs/weather.com-cert.pem
     networks:
       - app_network
     command: >
       sh -c "
       uv run --no-dev manage.py migrate; 
-      uv run --no-dev server.py; 
+      uv run --no-dev manage.py collectstatic --noinput --clear;
+      uv run --no-dev manage.py createsuperuser --noinput;
+      uv run --no-dev gunicorn config.asgi:application
       "
 
 networks:

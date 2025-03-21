@@ -15,8 +15,9 @@ env = environ.Env(
 )
 
 bind = env("DJANGO_UDS") or f'{env("DJANGO_HOST")}:{env("DJANGO_PORT")}'
-certfile = env("DJANGO_SSL_CERTFILE")
-keyfile = env("DJANGO_SSL_KEYFILE")
+if env("DJANGO_SSL"):
+    certfile = env("DJANGO_SSL_CERTFILE")
+    keyfile = env("DJANGO_SSL_KEYFILE")
 workers = multiprocessing.cpu_count() * 2 + 1
 worker_class = UvicornWorker
 dameon = env("DJANGO_GUNICORN_DAEMON")

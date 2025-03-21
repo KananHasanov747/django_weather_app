@@ -1,7 +1,5 @@
 services:
   app:
-    environment:
-      DJANGO_REDIS: True
     depends_on:
       - redis-cache
 
