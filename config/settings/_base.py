@@ -21,6 +21,7 @@ env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_CSRF_TRUSTED_HOSTS=(str, ""),
     DJANGO_POSTGRES=(bool, False),
     DJANGO_NGINX=(bool, False),
+    DJANGO_REDIS_LOCATION=(str, "redis://127.0.0.1:6379"),
     DJANGO_SECRET_KEY_FALLBACKS=(str, get_random_secret_key()),
 )
 
@@ -188,10 +189,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": [
-            "redis://127.0.0.1:6379",
-            "redis://redis-cache:6379",  # compose.redis.yml
-        ],
+        "LOCATION": env("DJANGO_REDIS_LOCATION").split(","),
     },
 }
 

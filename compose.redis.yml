@@ -1,5 +1,7 @@
 services:
   app:
+    environment:
+      DJANGO_REDIS_LOCATION: "redis://redis-cache:6379"
     depends_on:
       - redis-cache
 
