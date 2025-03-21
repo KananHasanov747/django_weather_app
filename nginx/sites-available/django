@@ -1,5 +1,9 @@
-# FIX: Nginx doesn't have access to these dirs: sudo chmod +x /home /home/ubuntu /home/ubuntu/app
+# https://rogs.me/2020/04/secure-your-django-api-from-ddos-attacks-with-nginx-and-fail2ban/
+limit_req_zone $binary_remote_addr zone=main:20m rate=5r/s;
+
 server {
+  limit_req zone=main burst=5 nodelay;
+
   listen 80;
   server_name <EC2.PUBLIC.DOMAIN.OR.IP>; # AWS EC2 Public IP (e.g., 13.48.70.77)
 
