@@ -1,6 +1,6 @@
 # 🌧 Weather App (Django + HTMX + Alpine.js)
 
-![Main page](images/main_page.webp)
+![Main page](images/main_page_1.webp)
 
 ## ✨ Features
 
@@ -10,7 +10,7 @@
 - [x] [HTMX](https://htmx.org/) + [Alpine.js](https://alpinejs.dev/) that provides lightweight, reactive approach to building dynamic SSR
 - [x] [TailwindCSS v4](https://tailwindcss.com/blog/standalone-cli) support (using standalone cli)
 - [x] [PinesUI](https://devdojo.com/pines) support: an Alpine & Tailwind UI library of animations, sliders, and more as a set of UI elements to copy/paste
-- [x] Uvicorn support
+- [x] Uvicorn/Gunicorn support
 - [x] A pyproject.toml file for **[uv](https://github.com/astral-sh/uv)** package manager
 - [x] Manual HTML compression at runtime in middleware
 - [x] [ServeStatic](https://github.com/Archmonger/ServeStatic) support (a WhiteNoise alternative for ASGI) for simplified static file serving
@@ -24,22 +24,22 @@
   - Development mode (`./scripts/dev.sh`)
   - Pre-production mode (`./scripts/preprod.sh`)
   - Testing mode (`./scripts/pytest.sh`)
-- [x] Docker containerization
+- [x] [Docker](https://www.docker.com/)/[Podman](https://podman.io/) support
 - [ ] Kubernetes support
 - [x] [Nginx](https://nginx.org/en/) support
-- [ ] [Fail2Ban](https://github.com/fail2ban/fail2ban) support for DDoS attacks and multiple authentication errors
+- [ ] [Fail2Ban](https://github.com/fail2ban/fail2ban) support against DDoS attacks and multiple authentication errors
 
 ## 🛠️ Installation
 
-The easiest way to run the app locally is to use Docker/Podman and choose the following:
+The easiest way to run the app locally is to use Docker/Podman as follows:
 
 - Ensure, that all ports (`8433` for app, `5432` for postgres, `6379` for redis) are not currently in use (use `lsof -i -P | grep LISTEN` to check busy ports in UNIX systems)
+- Ensure, that you uncommented `[sshd]` & `[sshd-ddos]` in **fail2ban/jail.local** if deciding not to implement SSH/HTTPS inside container
 - To load the app with the simplest configuration, run:
-  `docker compose -f compose.yml -f compose.servestatic.yml up --build`
+  `docker compose -f compose.yml -f compose.nginx.yml -f compose.redis.yml up --build`
   or
-  `podman-compose -f compose.yml -f compose.servestatic.yml up --build`
-- To add Nginx into the app, replace `compose.servestatic.yml` with `compose.nginx.yml`
-- To add Redis into the app, append `-f compose.redis.yml` before `up --build`
+  `podman-compose -f compose.yml -f compose.nginx.yml -f compose.redis.yml up --build`
+- If you don't want to use **Nginx**, replace it with `-f compose.servestatic.yml` (don't forget to check the ports running; they have to be as same as **DJANGO_PORT**)
 - To add Postgres into the app, append `-f compose.postgres.yml` before `up --build`
 
 In case you decide to host on the platform (in my case, it is AWS EC2):
@@ -79,4 +79,14 @@ In case you decide to host on the platform (in my case, it is AWS EC2):
   sudo systemctl status gunicorn
   sudo systemctl status nginx
   ```
-- Open the new tab (or a Browser) and enter your public IP address. In case you see, that the CSS or Javascript is not loading, try to add privilege (`chmod +x /path/to/your/project/app`)
+- Open the new tab (or a Browser) and enter your public IP address. In case you see, that the CSS or Javascript are not loading, try to add privilege (`chmod +x /path/to/your/project/app`)
+
+## 🖼️ Media
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));">
+    <img src="images/login_page.webp" />
+    <img src="images/main_page_mobile_1.webp" />
+    <img src="images/main_page_mobile_2.webp" />
+    <img src="images/main_page_mobile_3.webp" />
+    <img src="images/login_page_mobile.webp" />
+</div>
