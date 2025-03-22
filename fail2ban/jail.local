@@ -1,0 +1,31 @@
+# https://rogs.me/2020/04/secure-your-django-api-from-ddos-attacks-with-nginx-and-fail2ban/
+# append the whole content here at the end of the file /etc/fail2ban/jail.local
+[nginx-req-limit]
+enabled = true
+filter = nginx-limit-req
+action = iptables-multiport[name=ReqLimit, port="http,https", protocol=tcp]
+# uses the nginx log path
+logpath = /var/log/nginx/error.log
+# In seconds; if IP address appears maxretry amount of times in less than findtime seconds
+findtime = 5
+# ban on 3rd retry
+maxretry = 2
+# 300 seconds = 5 minutes
+bantime = 300
+
+[man-ban]
+enabled = true
+filter = nginx-limit-req
+action = iptables-multiport[name=ReqLimit, port="http,https", protocol=tcp]
+logpath = /var/log/nginx/error.log
+findtime = 1
+maxretry = 3000
+# 2678400 seconds = 1 month
+bantime = 2678400
+
+# uncomment them if using Docker/Podman, or without SSH/HTTPS protocol
+# [sshd]
+# enabled = false
+#
+# [sshd-ddos]
+# enabled = false

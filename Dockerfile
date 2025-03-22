@@ -1,3 +1,4 @@
+# Set the python version
 ARG PYTHON_VERSION=3.12
 
 # Pull the image

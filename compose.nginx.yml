@@ -4,7 +4,10 @@ services:
       - static_volume:/app/staticfiles
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
     env_file:
       # NOTE: the DJANGO_PORT in .env.prod must differ from Nginx host (8000) and container (80) ports
       - .env.prod
