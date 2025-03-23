@@ -1,13 +1,9 @@
-import os
 import asyncio
 import uvicorn
 import environ
 
 
 async def run():
-    if "DJANGO_ENVIRONMENT" not in os.environ:
-        raise ValueError("DJANGO_ENVIRONMENT must be set")
-
     env = environ.Env(  # Default value will only work if not in os.environ
         DJANGO_HOST=(str, "0.0.0.0"),
         DJANGO_PORT=(int, 443),

@@ -22,5 +22,6 @@ workers = multiprocessing.cpu_count() * 2 + 1
 worker_class = UvicornWorker
 dameon = env("DJANGO_GUNICORN_DAEMON")
 timeout = 600
+reload = True
 loglevel = str(env("DJANGO_LOG_LEVEL")).lower()
 logger_class = GunicornLogger

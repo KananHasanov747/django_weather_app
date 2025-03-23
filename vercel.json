@@ -1,0 +1,27 @@
+{
+  "builds": [
+    {
+      "src": "config/asgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "entrypoint": "vercel.entrypoint.sh",
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
+      }
+    },
+    {
+      "src": "vercel.build_files.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "staticfiles"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "config/asgi.py"
+    }
+  ],
+  "outputDirectory": "staticfiles"
+}

@@ -22,3 +22,5 @@ application = ProtocolTypeRouter(
         "http": django_asgi_app,
     }
 )
+
+app = application  # because vercel doesn't work with 'application'

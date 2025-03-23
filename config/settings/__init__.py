@@ -1,6 +1,6 @@
 import environ
 
-env = environ.Env(DJANGO_ENVIRONMENT=(str, "development"))
+env = environ.Env(DJANGO_ENVIRONMENT=(str, "production"))
 
 if env("DJANGO_ENVIRONMENT") == "production":
     from .production import *  # noqa

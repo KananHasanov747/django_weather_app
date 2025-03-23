@@ -20,6 +20,7 @@ env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_ALLOWED_HOSTS=(str, ""),
     DJANGO_CSRF_TRUSTED_HOSTS=(str, ""),
     DJANGO_POSTGRES=(bool, False),
+    POSTGRES_PORT=(str, "5432"),
     DJANGO_NGINX=(bool, False),
     DJANGO_REDIS_LOCATION=(str, "redis://127.0.0.1:6379"),
     DJANGO_SECRET_KEY_FALLBACKS=(str, get_random_secret_key()),
@@ -169,7 +170,7 @@ DATABASES = {
     "default": (
         {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": env("POSTGRES_DB"),
+            "NAME": env("POSTGRES_DATABASE"),
             "USER": env("POSTGRES_USER"),
             "PASSWORD": env("POSTGRES_PASSWORD"),
             "HOST": env("POSTGRES_HOST"),

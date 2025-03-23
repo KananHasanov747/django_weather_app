@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
-import os
 import sys
 import environ
 
 
 def main():
     """Run administrative tasks."""
-    if "DJANGO_ENVIRONMENT" not in os.environ:
-        raise ValueError("DJANGO_ENVIRONMENT must be set")
     environ.Env.read_env()
 
     try:
