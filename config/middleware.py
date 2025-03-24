@@ -1,5 +1,4 @@
 from django.http import Http404
-from loguru import logger
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 
@@ -19,28 +18,6 @@ class XForwardedForMiddleware:
 
         # Call the next middleware or view
         response = self.get_response(request)
-        return response
-
-
-class RequestLoggingMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        # Log request info
-        logger.info(
-            f"Request: {request.method} {request.path}",
-            # FIX: extra is not showing
-            extra={
-                "user": request.user if request.user.is_authenticated else "Anonymous"
-            },
-        )
-
-        response = self.get_response(request)
-
-        # Log response info
-        logger.info(f"Response: {response.status_code} for {request.path}")
-
         return response
 
 
