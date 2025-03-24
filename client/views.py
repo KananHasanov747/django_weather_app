@@ -5,13 +5,11 @@ from django_ratelimit.exceptions import Ratelimited
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
 
 from server.views import weather_view
 
 
 # path('', views.index_view, name="index")
-@login_required
 async def index_view(request) -> HttpResponse:
     logger.bind(view="index_view")
 
