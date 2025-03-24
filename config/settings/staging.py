@@ -1,7 +1,5 @@
 from ._base import *  # noqa
 
-DEBUG = False
-
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = False

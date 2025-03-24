@@ -8,7 +8,6 @@ import environ
 from pathlib import Path
 
 # Django imports
-from django.conf import settings
 from django.core.management.utils import get_random_secret_key
 
 ###############
@@ -25,6 +24,8 @@ env = environ.Env(  # Default value will only work if not in os.environ
     DJANGO_REDIS_LOCATION=(str, "redis://127.0.0.1:6379"),
     DJANGO_SECRET_KEY_FALLBACKS=(str, get_random_secret_key()),
 )
+
+DEBUG = False if env("DJANGO_ENVIRONMENT") in ["staging", "production"] else True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -97,7 +98,7 @@ INSTALLED_APPS = [
         "django.contrib.messages",
         "django.contrib.staticfiles",
         # plugins and tools
-        "servestatic.runserver_nostatic" if settings.DEBUG else False,
+        "servestatic.runserver_nostatic" if DEBUG else False,
         "django_htmx",
         "django_cotton",
         "django_recaptcha",
@@ -125,7 +126,7 @@ MIDDLEWARE = [
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "config.middleware.RestrictDirectAccessMiddleware",
+        ("config.middleware.RestrictDirectAccessMiddleware" if not DEBUG else False),
         "django.middleware.gzip.GZipMiddleware",
         "django_htmx.middleware.HtmxMiddleware",  # from 'django-htmx' library
     ]

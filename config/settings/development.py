@@ -1,7 +1,5 @@
 from ._base import *  # noqa
 
-DEBUG = True
-
 # Django debug toolbar
 
 if not TESTING:  # noqa
