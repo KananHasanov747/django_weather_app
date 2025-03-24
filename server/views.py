@@ -35,7 +35,6 @@ def get_cities(q) -> List:
 @decorate_view(
     cached(
         cache=RedisCache,
-        key="key",
         serializer=PickleSerializer(),
         namespace="server_api",
     )
@@ -77,7 +76,6 @@ class WeatherSchema(BaseModel):
 @decorate_view(
     cached(
         cache=RedisCache,
-        key="key",
         serializer=PickleSerializer(),
         namespace="server_api",
     )
