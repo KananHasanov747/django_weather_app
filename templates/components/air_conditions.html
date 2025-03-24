@@ -1,32 +1,32 @@
 <div class="w-full">
-    <div class="flex flex-col px-5 sm:px-7 py-6 bg-light-gray rounded-3xl">
+    <div class="flex flex-col px-5 2md:px-7 py-6 bg-light-gray rounded-3xl">
         <h1 class="text-[13px] leading-[18px] text-dark-white font-semibold mb-4">AIR CONDITIONS</h1>
         <div class="w-full grid grid-rows-2 grid-cols-2 gap-3">
             <div class="flex">
-                <iconify-icon icon="mdi:thermometer" class="text-dark-white text-2xl mr-1 sm:mr-3"></iconify-icon>
+                <iconify-icon icon="mdi:thermometer" class="text-dark-white text-2xl mr-1 2md:mr-3"></iconify-icon>
                 <div class="flex flex-col">
-                    <span class="text-dark-white text-base sm:text-lg font-light sm:mb-2">Real Feel</span>
+                    <span class="text-dark-white text-base 2md:text-lg font-light 2md:mb-2">Real Feel</span>
                     <span class="text-light-white text-2xl font-semibold">{{ data.current.apparent_temperature }}°</span>
                 </div>
             </div>
             <div class="flex ml-4">
-                <iconify-icon icon="fa-solid:wind" class="text-dark-white sm:text-2xl mr-1 sm:mr-3"></iconify-icon>
+                <iconify-icon icon="fa-solid:wind" class="text-dark-white 2md:text-2xl mr-1 2md:mr-3"></iconify-icon>
                 <div class="flex flex-col">
-                    <span class="text-dark-white text-base sm:text-lg font-light sm:mb-2">Wind</span>
+                    <span class="text-dark-white text-base 2md:text-lg font-light 2md:mb-2">Wind</span>
                     <span class="text-light-white text-2xl font-semibold">{{ data.current.wind_speed }} km/h</span>
                 </div>
             </div>
             <div class="flex">
-                <iconify-icon icon="ion:water" class="text-dark-white text-2xl mr-1 sm:mr-3"></iconify-icon>
+                <iconify-icon icon="ion:water" class="text-dark-white text-2xl mr-1 2md:mr-3"></iconify-icon>
                 <div class="flex flex-col">
-                    <span class="text-dark-white text-base sm:text-lg font-light sm:mb-2">Chance of rain</span>
+                    <span class="text-dark-white text-base 2md:text-lg font-light 2md:mb-2">Chance of rain</span>
                     <span class="text-light-white text-2xl font-semibold">{{ data.current.rain }}%</span>
                 </div>
             </div>
             <div class="flex ml-4">
-                <iconify-icon icon="fa-solid:sun" class="text-dark-white text-2xl mr-1 sm:mr-3"></iconify-icon>
+                <iconify-icon icon="fa-solid:sun" class="text-dark-white text-2xl mr-1 2md:mr-3"></iconify-icon>
                 <div class="flex flex-col">
-                    <span class="text-dark-white text-base sm:text-lg font-light sm:mb-2">UV index</span>
+                    <span class="text-dark-white text-base 2md:text-lg font-light 2md:mb-2">UV index</span>
                     <span class="text-light-white text-2xl font-semibold">{{ data.daily|index:0|index:'uv_index' }}%</span>
                 </div>
             </div>

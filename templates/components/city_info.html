@@ -1,6 +1,6 @@
 {% load static %}
 <div class="w-full">
-    <div class="flex p-4 md:px-11 md:py-7">
+    <div class="flex p-4 xl:px-11 xl:py-7">
         <div class="flex-grow">
             <div class="mb-6">
                 <h2 class="text-4xl text-light-white font-semibold mb-1.5">{{ data.city }}</h2>
@@ -16,7 +16,7 @@
                     type="image/webp">
             <img src="{% static data.current.icon_url|index:'png' %}"
                  alt="{{ data.current.description }}"
-                 class="my-auto h-30 md:h-40 3md:h-48.5" />
+                 class="my-auto h-30 lg:h-40 6xl:h-48.5" />
         </picture>
     </div>
 </div>

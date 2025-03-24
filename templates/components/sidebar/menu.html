@@ -1,5 +1,5 @@
 <nav x-data="{ navigationMenuOpen: false, navigationMenuCloseDelay: 200, navigationMenuCloseTimeout: null, navigationMenuLeave() { let that = this; this.navigationMenuCloseTimeout = setTimeout(() => { that.navigationMenuClose(); }, this.navigationMenuCloseDelay); }, navigationMenuReposition(navElement) { this.navigationMenuClearCloseTimeout(); this.$refs.navigationDropdown.style.left = navElement.offsetLeft + 'px'; this.$refs.navigationDropdown.style.marginLeft = (navElement.offsetWidth/2) + 'px'; }, navigationMenuClearCloseTimeout(){ clearTimeout(this.navigationMenuCloseTimeout); }, navigationMenuClose(){ this.navigationMenuOpen = false; } }"
-     class="relative z-10 w-auto min-[38rem]:hidden ml-auto">
+     class="relative z-10 w-auto min-2xl:hidden ml-auto">
     <div class="relative">
         <button @mouseover="navigationMenuOpen=true; navigationMenuReposition($el); navigationMenu='getting-started'"
                 @mouseleave="navigationMenuLeave()"
