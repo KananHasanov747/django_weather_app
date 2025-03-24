@@ -1,3 +1,4 @@
+import re
 from django.http import Http404
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
@@ -29,15 +30,19 @@ class RestrictDirectAccessMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # Check if the requested path is in the restricted list
         if (
-            request.path in self.RESTRICTED_URLS
+            any([request.path.startswith(_) for _ in self.RESTRICTED_URLS])
             or request.resolver_match in self.RESTRICTED_PATTERNS
         ):
             # Get the referer header (where the request came from)
             referer = request.META.get("HTTP_REFERER")
             # Check if referer exists and starts with your domain
             if referer and (
-                referer.startswith(f"http://{settings.ALLOWED_HOSTS[0]}")
-                or referer.startswith(f"https://{settings.ALLOWED_HOSTS[0]}")
+                any(
+                    [
+                        re.match(rf"^(http|https)://{re.escape(host)}", referer)
+                        for host in settings.ALLOWED_HOSTS
+                    ]
+                )
             ):
                 # Internal request from your site, allow it
                 return None
