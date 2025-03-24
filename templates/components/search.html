@@ -2,7 +2,7 @@
      class="relative w-full grow">
     <input type="text"
            x-model="query"
-           @input.debounce.150ms="fetchCities()"
+           @input.debounce.300ms="fetchCities()"
            @keyup.arrow-down="highlightNext()"
            @keyup.arrow-up="highlightPrevious()"
            @keyup.enter.prevent="selectCity()"
