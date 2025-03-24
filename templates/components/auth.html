@@ -1,0 +1,44 @@
+<c-sidebar.menu />
+<div id="auth"
+     class="flex flex-col w-full h-full px-5.5 items-center justify-center">
+    <form id="{{ auth_action }}"
+          novalidate
+          hx-post="{% url 'users:'|add:auth_action %}"
+          hx-target="#content"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          class="flex flex-col gap-4 w-[280px]">
+        {% csrf_token %}
+        {% for field in form %}
+            {{ field }}
+            {% if
+                field.has_error|to_json %}
+                <div class="text-light-white">
+                    {% for error in field.errors %}<div>{{ error }}</div>{% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="w-full grid grid-flow-col grid-cols-2 gap-2">
+            <button type="submit"
+                    class="rounded-[.6rem] cursor-pointer py-2 bg-light-gray text-light-white">
+                {% if auth_action == "login" %}
+                    Log in
+                {% else %}
+                    Sign up
+                {% endif %}
+            </button>
+            <button type="button"
+                    class="rounded-[.6rem] cursor-pointer py-2 bg-light-gray text-light-white"
+                    hx-get="{% url 'users:'|add:switch_action %}"
+                    hx-target="#content"
+                    hx-swap="innerHTML"
+                    hx-push-url="true">
+                {% if auth_action == "login" %}
+                    Sign up
+                {% else %}
+                    Log in
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>

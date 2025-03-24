@@ -39,7 +39,7 @@ async def index_view(request) -> HttpResponse:
         template_name = "components/weather.html" if request.htmx else "index.html"
 
         return await sync_to_async(render, thread_sensitive=False)(
-            request, template_name, {"data": data}
+            request, template_name, {"data": data, "weather_action": True}
         )
     except Exception as e:
         logger.exception(f"Error during index_view processing: {e}")

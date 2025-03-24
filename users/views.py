@@ -20,6 +20,9 @@ async def login_view(
 ) -> None | HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
     logger.bind(view="login_view")
 
+    context = {"auth_action": "login", "switch_action": "signup"}
+    template_name = "components/auth.html" if request.htmx else "index.html"
+
     if request.method == "POST":
         form = LoginForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
@@ -34,14 +37,13 @@ async def login_view(
                 logger.warning(f"Failed login attempt for '{username}'")
         else:
             logger.error("Login form invalid")
+            return render(request, template_name, {"form": form, **context})
 
     else:
         logger.info("GET request to render the login form")
         form = LoginForm()
 
-        template_name = "components/auth/login.html" if request.htmx else "index.html"
-
-        return render(request, template_name, {"form": form, "action": "login"})
+        return render(request, template_name, {"form": form, **context})
 
 
 # path("/accounts/signup/", views.signup_view, name="signup")
@@ -63,6 +65,9 @@ async def signup_view(
         # Handle rate limit exceeded
         raise Ratelimited()
 
+    context = {"auth_action": "signup", "switch_action": "login"}
+    template_name = "components/auth.html" if request.htmx else "index.html"
+
     if request.method == "POST":
         form = RegisterForm(data=request.POST)
         if await sync_to_async(form.is_valid)():
@@ -71,14 +76,13 @@ async def signup_view(
             return redirect(reverse("users:login"))
         else:
             logger.error("Signup form invalid")
+            return render(request, template_name, {"form": form, **context})
 
     else:
         logger.info("GET request to render the signup form")
         form = RegisterForm()
 
-        template_name = "components/auth/signup.html" if request.htmx else "index.html"
-
-        return render(request, template_name, {"form": form, "action": "signup"})
+        return render(request, template_name, {"form": form, **context})
 
 
 # path("/accounts/logout/", views.logout_view, name="logout")

@@ -2,11 +2,9 @@
     <div class="flex flex-grow relative py-6 px-7.5 min-h-dvh">
         <c-sidebar.main />
         <div id="content" class="flex flex-col w-full">
-            {% if action == "login" %}
-                <c-auth.login />
-            {% elif action == "signup" %}
-                <c-auth.signup />
-            {% else %}
+            {% if auth_action %}
+                <c-auth />
+            {% elif weather_action %}
                 <c-weather />
             {% endif %}
         </div>
