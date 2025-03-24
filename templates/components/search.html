@@ -14,7 +14,7 @@
          class="absolute left-0 right-0 overflow-y-auto text-[13px] leading-[18px] mt-2 text-light-white bg-light-gray gap-2 rounded-[.6rem]">
         <template x-for="(city, index) in cities" :key="index">
             <div :class="'flex flex-col p-2 rounded-[.6rem] cursor-pointer' + (index === highlightedIndex ? ' bg-dark-white' : '')"
-                 @click="selectCity">
+                 @mousedown="selectCity">
                 <span x-text="city.city"></span>
                 <span x-text="city.country"></span>
             </div>
