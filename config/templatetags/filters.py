@@ -1,3 +1,4 @@
+import json
 from django import template
 
 register = template.Library()
@@ -15,6 +16,11 @@ def index(indexable, i):
             return indexable[i]
     except (ValueError, IndexError, KeyError) as e:
         return e
+
+
+@register.filter
+def to_json(value):
+    return json.dumps(value)
 
 
 @register.filter
