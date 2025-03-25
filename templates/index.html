@@ -13,7 +13,9 @@
         <script src="{% static "vendored/iconify-icon-2.2.0.min.js" %}"></script>
         <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     </head>
-    <body hx-ext="preload" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <body hx-ext="preload"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          class="bg-dark-gray">
         <c-base />
         <script>
           document.addEventListener("DOMContentLoaded", () => {
