@@ -1,6 +1,7 @@
 import asyncio
 import uvicorn
 import environ
+from loguru import logger
 
 
 async def run():
@@ -12,7 +13,6 @@ async def run():
     )
     environ.Env.read_env()
 
-    from loguru import logger
     from aiocache import Cache
     from django.conf import settings
     from config.logging_config import UVICORN_LOGGING_CONFIG
@@ -61,4 +61,7 @@ async def run():
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    except Exception as e:
+        logger.exception(f"Error during the startup: {e}")
