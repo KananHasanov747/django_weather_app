@@ -28,16 +28,19 @@ def get_location(request):
         if loc := data.get("loc", None):
             lat, lon = loc.split(",")
             query = f"""
-                    SELECT id, lat, lon,
+                    SELECT * 
+                    FROM (
+                      SELECT id, lat, lon,
                         (3959 * acos(
                             cos(radians({lat})) * cos(radians(lat)) *
                             cos(radians(lon) - radians({lon})) +
                             sin(radians({lat})) * sin(radians(lat))
                         )) AS distance
-                    FROM weather_cities
+                      FROM weather_cities
+                    ) AS subquery
                     WHERE distance < 29
                     ORDER BY distance
-                    LIMIT 1
+                    LIMIT 1;
                 """
 
             obj = City.objects.raw(query)[0]
