@@ -30,13 +30,13 @@ async def index_view(request) -> HttpResponse:
     logger.info("GET request to render index view")
     try:
         location = await sync_to_async(get_location)(request)
-        city = location.get("city", None)
-        country = location.get("country", None)
 
         data = await weather_view(
             request,
-            city=request.GET.get("city", city or "Tokyo"),
-            country=request.GET.get("country", country or "Japan"),
+            city=request.GET.get("city", city := location.get("city", None) or "Tokyo"),
+            country=request.GET.get(
+                "country", country := location.get("country", None) or "Japan"
+            ),
         )
 
         template_name = "components/weather.html" if request.htmx else "index.html"
