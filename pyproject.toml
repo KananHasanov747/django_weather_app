@@ -27,6 +27,7 @@ dependencies = [
     "psycopg[binary]>=3.2.6",
     "astral>=3.2",
     "pytz>=2025.1",
+    "django-ipware>=7.0.1",
 ]
 
 [dependency-groups]
