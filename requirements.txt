@@ -20,3 +20,4 @@ redis>=5.2.1
 aiocache[redis]>=0.12.3
 django-ipware>=7.0.1
 astral>=3.2
+pytz>=2025.1
