@@ -1,4 +1,64 @@
-<div x-data=" { query: '', cities: [], highlightedIndex: 0, index: null, get fetchCities() { if (this.query.length > 0) { fetch(`/search/${this.query}/`).then((response) => response.text()).then((list) => { this.cities = JSON.parse(list); this.highlightedIndex = 0; }) } else { this.cities = []; } }, get showSuggestions() { if(this.tmpCities) this.cities = this.tmpCities; }, get hideSuggestions() { this.tmpCities = this.cities; this.cities = []; }, get highlightNext() { if (this.highlightedIndex < this.cities.length - 1) { this.highlightedIndex++; } else { this.highlightedIndex = 0; } }, get highlightPrevious() { if (this.highlightedIndex > 0) { this.highlightedIndex--; } else { this.highlightedIndex = this.cities.length - 1; } }, get selectCity() { const selectedCity = this.cities[this.index ?? this.highlightedIndex]; if (selectedCity) { this.url = new URL(window.location.href); this.url.searchParams.set('city', selectedCity.city); this.url.searchParams.set('country', selectedCity.country); window.history.pushState({}, '', this.url); htmx.ajax('GET', this.url.toString(), { target: '#content' }) } } } "
+{# FIX: search engine can't look up for cities with more than one word #}
+{# djlint: off #}
+<div x-data=" {
+    query: '',
+    cities: [], // Stores suggested cities
+    highlightedIndex: 0,
+    index: null,
+    get fetchCities() {
+        if (this.query.length > 0) {
+            fetch(`/search/${this.query}/`).then((response) => response.text()).then((list) => {
+                this.cities = JSON.parse(list);
+                this.highlightedIndex = 0;
+            })
+        } else {
+            this.cities = [];
+        }
+    },
+    get showSuggestions() {
+        if (this.tmpCities) this.cities = this.tmpCities;
+    },
+    get hideSuggestions() {
+        this.tmpCities = this.cities;
+        this.cities = [];
+    },
+    get highlightNext() {
+        if (this.highlightedIndex < this.cities.length - 1) {
+            this.highlightedIndex++;
+        } else {
+            this.highlightedIndex = 0;
+        }
+    },
+    get highlightPrevious() {
+        if (this.highlightedIndex > 0) {
+            this.highlightedIndex--;
+        } else {
+            this.highlightedIndex = this.cities.length - 1;
+        }
+    },
+    // Send the response to the backend and retreive an updated data
+    get selectCity() {
+        const defaultSelected = this.cities[this.index ?? this.highlightedIndex]; 
+        const selectedCity = defaultSelected.city;
+        const selectedCountry = defaultSelected.country;
+        
+        if(selectedCity && selectedCountry) {
+            // Use cookies to set the values unchanged after reload
+            document.cookie = 'city=' + selectedCity;
+            document.cookie = 'country=' + selectedCountry;
+            this.url = new URL(window.location.href);
+
+            window.history.pushState({}, '', this.url);
+            htmx.ajax('GET', this.url.toString(), {
+                target: '#content',
+                values: {
+                    city: selectedCity,
+                    country: selectedCountry,
+                }
+            });
+        }
+    }
+} "
      class="relative w-full grow">
     <input type="text"
            x-model="query"

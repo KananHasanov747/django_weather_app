@@ -20,7 +20,6 @@ async def index_view(request) -> HttpResponse:
         fn=index_view,
         key="ip",  # Rate limit based on IP address
         rate="1/s",  # 1 request per second
-        method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
         logger.warning("Rate-limited signup attempt from IP")
@@ -33,9 +32,21 @@ async def index_view(request) -> HttpResponse:
 
         data = await weather_view(
             request,
-            city=request.GET.get("city", city := location.get("city", None) or "Tokyo"),
+            city=request.GET.get(
+                "city",
+                request.COOKIES.get(
+                    "city", None
+                )  # Return if a user visited a city & reloaded the page
+                or location.get("city", None)
+                or "Tokyo",
+            ),
             country=request.GET.get(
-                "country", country := location.get("country", None) or "Japan"
+                "country",
+                request.COOKIES.get(
+                    "country", None
+                )  # Return if a user visited a city & reloaded the page
+                or location.get("country", None)
+                or "Japan",
             ),
         )
 
