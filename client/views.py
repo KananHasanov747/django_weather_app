@@ -42,11 +42,21 @@ async def index_view(request) -> HttpResponse:
             ),
             country=request.GET.get(
                 "country",
-                request.COOKIES.get(
-                    "country", None
-                )  # Return if a user visited a city & reloaded the page
+                request.COOKIES.get("country", None)
                 or location.get("country", None)
                 or "Japan",
+            ),
+            lat=request.GET.get(
+                "lat",
+                request.COOKIES.get("lat", None)
+                or location.get("lat", None)
+                or "35.68970000000000197",
+            ),
+            lon=request.GET.get(
+                "lon",
+                request.COOKIES.get("lon", None)
+                or location.get("lon", None)
+                or "139.692200000000014",
             ),
         )
 

@@ -28,7 +28,7 @@ class CitySchema(BaseModel):
 @database_sync_to_async
 def get_cities(q) -> List:
     queryset = City.objects.filter(city__icontains=q)[:4]
-    return list(queryset.values("city", "lat", "lon", "country", "population"))
+    return list(queryset.values("city", "lat", "lon", "country"))
 
 
 @api.get("/cities", response=List[CitySchema], url_name="city")
@@ -72,6 +72,7 @@ class WeatherSchema(BaseModel):
     daily: List[DailyWeather]
 
 
+# /api/weather
 @api.get("/weather", response=WeatherSchema, url_name="weather")
 @decorate_view(
     cached(
@@ -81,7 +82,11 @@ class WeatherSchema(BaseModel):
     )
 )
 async def weather_view(
-    request, city: str, country: Optional[str] = Query(None)
+    request,
+    city: str,
+    country: str,
+    lat: str,
+    lon: str,
 ) -> Dict[str, None]:
     logger.bind(view="weather_view")
 
@@ -99,7 +104,7 @@ async def weather_view(
         raise Ratelimited()
 
     try:
-        weather = WeatherAPI(city=city, country=country)
+        weather = WeatherAPI(city=city, country=country, lat=lat, lon=lon)
         data = await weather.data()
         logger.success(f"Fetched the city ({data['city']}, {data['country']})")
         return data

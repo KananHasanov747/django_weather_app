@@ -8,8 +8,6 @@ from typing import Dict
 from datetime import datetime
 from dataclasses import dataclass
 
-from .models import City
-
 
 @dataclass
 class ForecastIcon:
@@ -203,17 +201,11 @@ class WeatherAPI:
         },
     }
 
-    def __init__(self, city, country) -> None:
+    def __init__(self, city, country, lat, lon) -> None:
         self.city = city
         self.country = country
-
-    async def _init(self) -> None:
-        try:
-            _ = await City.objects.aget(city=self.city, country=self.country)
-            self.lat = _.lat
-            self.lon = _.lon
-        except City.DoesNotExist:
-            raise ValueError(f"City({self.city}, {self.country}) not found")
+        self.lat = lat
+        self.lon = lon
 
     # TODO: subsitute params with local alternatives (https://grok.com/chat/ef741433-b668-4611-8e28-5632a10a60f0)
     def params(self) -> Dict:
@@ -240,7 +232,6 @@ class WeatherAPI:
         }
 
     async def fetch_weather_data(self):
-        await self._init()
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(

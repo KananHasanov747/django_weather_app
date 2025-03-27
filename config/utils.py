@@ -27,6 +27,9 @@ def get_location(request):
         # Check if data is not empty
         if loc := data.get("loc", None):
             lat, lon = loc.split(",")
+            # Use Haversine formula to find the closest distance to the registered city (<29 miles)
+            # 3959 for miles, 6371 for km
+            # NOTE: Postgres cannot work without subquery; otherwise, it'll scream "distance does not exist"
             query = f"""
                     SELECT * 
                     FROM (
@@ -47,7 +50,12 @@ def get_location(request):
 
             cache.set(
                 cache_key,
-                location := {"city": obj.city, "country": obj.country},
+                location := {
+                    "city": obj.city,
+                    "country": obj.country,
+                    "lat": obj.lat,
+                    "lon": obj.lon,
+                },
                 timeout=86400,
             )  # 1 day
             return location

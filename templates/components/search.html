@@ -41,11 +41,15 @@
         const defaultSelected = this.cities[this.index ?? this.highlightedIndex]; 
         const selectedCity = defaultSelected.city;
         const selectedCountry = defaultSelected.country;
+        const selectedLatitude = defaultSelected.lat;
+        const selectedLongitude = defaultSelected.lon;
         
         if(selectedCity && selectedCountry) {
             // Use cookies to set the values unchanged after reload
             document.cookie = 'city=' + selectedCity;
             document.cookie = 'country=' + selectedCountry;
+            document.cookie = 'lat=' + selectedLatitude;
+            document.cookie = 'lon=' + selectedLongitude;
             this.url = new URL(window.location.href);
 
             window.history.pushState({}, '', this.url);
