@@ -13,7 +13,12 @@ from dataclasses import dataclass
 class ForecastIcon:
     description: str
     day: str
-    night: str
+    night: str = ""  # Default to None, will use day if not specified
+
+    # https://docs.python.org/3/library/dataclasses.html#dataclasses.__post_init__
+    def __post_init__(self):
+        if not self.night:
+            self.night = self.day
 
 
 @dataclass
@@ -53,152 +58,36 @@ class DailyWeather:
 class WeatherAPI:
     static_location = "assets/icons/"
     image_formats = ["webp", "png"]
-    forecast_icons = {
-        0: {
-            "description": "Sunny",
-            "day": "clear_sky",
-            "night": "clear_sky_night",
-        },
-        1: {
-            "description": "Mainly Sunny",
-            "day": "clear_sky",
-            "night": "clear_sky_night",
-        },
-        2: {
-            "description": "Partly Cloudy",
-            "day": "few_clouds",
-            "night": "few_clouds_night",
-        },
-        3: {
-            "description": "Cloudy",
-            "day": "scattered_clouds",
-            "night": "scattered_clouds",
-        },
-        4: {
-            "description": "Broken Cloudy",
-            "day": "broken_clouds",
-            "night": "broken_clouds",
-        },
-        45: {
-            "description": "Foggy",
-            "day": "mist",
-            "night": "mist",
-        },
-        48: {
-            "description": "Rime Fog",
-            "day": "mist",
-            "night": "mist",
-        },
-        51: {
-            "description": "Light Drizzle",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        53: {
-            "description": "Drizzle",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        55: {
-            "description": "Heavy Drizzle",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        56: {
-            "description": "Light Freezing Drizzle",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        57: {
-            "description": "Freezing Drizzle",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        61: {
-            "description": "Light Rain",
-            "day": "rain",
-            "night": "rain",
-        },
-        63: {
-            "description": "Rain",
-            "day": "rain",
-            "night": "rain",
-        },
-        65: {
-            "description": "Heavy Rain",
-            "day": "rain",
-            "night": "rain",
-        },
-        66: {
-            "description": "Light Freezing Rain",
-            "day": "rain",
-            "night": "rain",
-        },
-        67: {
-            "description": "Freezing Rain",
-            "day": "rain",
-            "night": "rain",
-        },
-        71: {
-            "description": "Light Snow",
-            "day": "snow",
-            "night": "snow",
-        },
-        73: {
-            "description": "Snow",
-            "day": "snow",
-            "night": "snow",
-        },
-        75: {
-            "description": "Heavy Snow",
-            "day": "snow",
-            "night": "snow",
-        },
-        77: {
-            "description": "Snow Grains",
-            "day": "snow",
-            "night": "snow",
-        },
-        80: {
-            "description": "Light Showers",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        81: {
-            "description": "Showers",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        82: {
-            "description": "Heavy Showers",
-            "day": "shower_rain",
-            "night": "shower_rain",
-        },
-        85: {
-            "description": "Light Snow Showers",
-            "day": "snow",
-            "night": "snow",
-        },
-        86: {
-            "description": "Snow Showers",
-            "day": "snow",
-            "night": "snow",
-        },
-        95: {
-            "description": "Thunderstorm",
-            "day": "thunderstorm",
-            "night": "thunderstorm",
-        },
-        96: {
-            "description": "Light Thunderstorms With Hail",
-            "day": "thunderstorm",
-            "night": "thunderstorm",
-        },
-        99: {
-            "description": "Thunderstorm With Hail",
-            "day": "thunderstorm",
-            "night": "thunderstorm",
-        },
+    forecast_desc = {
+        0: "Sunny",
+        1: "Mainly Sunny",
+        2: "Partly Cloudy",
+        3: "Cloudy",
+        4: "Broken Cloudy",
+        45: "Foggy",
+        48: "Rime Fog",
+        51: "Light Drizzle",
+        53: "Drizzle",
+        55: "Heavy Drizzle",
+        56: "Light Freezing Drizzle",
+        57: "Freezing Drizzle",
+        61: "Light Rain",
+        63: "Rain",
+        65: "Heavy Rain",
+        66: "Light Freezing Rain",
+        67: "Freezing Rain",
+        71: "Light Snow",
+        73: "Snow",
+        75: "Heavy Snow",
+        77: "Snow Grains",
+        80: "Light Showers",
+        81: "Showers",
+        82: "Heavy Showers",
+        85: "Light Snow Showers",
+        86: "Snow Showers",
+        95: "Thunderstorm",
+        96: "Light Thunderstorms With Hail",
+        99: "Thunderstorm With Hail",
     }
 
     def __init__(self, city, country, lat, lon) -> None:
@@ -206,6 +95,28 @@ class WeatherAPI:
         self.country = country
         self.lat = lat
         self.lon = lon
+
+    def forecast_icons(self, w_code):
+        desc = self.forecast_desc[w_code]
+        match w_code:
+            case 0 | 1:
+                return ForecastIcon(desc, "clear_sky", "clear_sky_night")
+            case 2:
+                return ForecastIcon(desc, "few_clouds", "few_clouds_night")
+            case 3:
+                return ForecastIcon(desc, "scattered_clouds")
+            case 4:
+                return ForecastIcon(desc, "broken_clouds")
+            case 45 | 48:
+                return ForecastIcon(desc, "mist")
+            case 51 | 53 | 55 | 56 | 57 | 80 | 81 | 82:
+                return ForecastIcon(desc, "shower_rain")
+            case 61 | 63 | 65 | 66 | 67:
+                return ForecastIcon(desc, "rain")
+            case 71 | 73 | 75 | 77 | 85 | 86:
+                return ForecastIcon(desc, "snow")
+            case 95 | 96 | 99:
+                return ForecastIcon(desc, "thunderstorm")
 
     # TODO: subsitute params with local alternatives (https://grok.com/chat/ef741433-b668-4611-8e28-5632a10a60f0)
     def params(self) -> Dict:
@@ -271,9 +182,11 @@ class WeatherAPI:
 
             is_day = True if sunrise <= dt_obj <= sunset else False
 
-            hourly_icon_name = WeatherAPI.forecast_icons[w_code][
-                ("day" if is_day else "night")
-            ]
+            hourly_icon_name = (
+                self.forecast_icons(w_code).day
+                if is_day
+                else self.forecast_icons(w_code).night
+            )
             hourly_weathers.append(
                 HourlyWeather(
                     date=datetime.strptime(dt, "%Y-%m-%dT%H:%M").strftime("%H:%M"),
@@ -282,7 +195,7 @@ class WeatherAPI:
                         format: self.static_location + hourly_icon_name + f".{format}"
                         for format in self.image_formats
                     },
-                    description=WeatherAPI.forecast_icons[w_code]["description"],
+                    description=self.forecast_desc[w_code],
                     temperature=round(hourly.get("temperature_2m", None)[i]),
                     apparent_temperature=round(
                         hourly.get("apparent_temperature", None)[i]
@@ -310,7 +223,7 @@ class WeatherAPI:
             daily.get("temperature_2m_min", None),
             daily.get("uv_index_max", None),
         ):
-            daily_icon_name = WeatherAPI.forecast_icons[w_code]["day"]
+            daily_icon_name = self.forecast_icons(w_code).day
             daily_weathers.append(
                 DailyWeather(
                     time=dt,
@@ -319,7 +232,7 @@ class WeatherAPI:
                         format: self.static_location + daily_icon_name + f".{format}"
                         for format in self.image_formats
                     },
-                    description=WeatherAPI.forecast_icons[w_code]["description"],
+                    description=self.forecast_desc[w_code],
                     temperature_max=round(max),
                     temperature_min=round(min),
                     uv_index=round(uv),
