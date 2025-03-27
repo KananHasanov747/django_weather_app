@@ -46,10 +46,12 @@
         
         if(selectedCity && selectedCountry) {
             // Use cookies to set the values unchanged after reload
-            document.cookie = 'city=' + selectedCity;
-            document.cookie = 'country=' + selectedCountry;
-            document.cookie = 'lat=' + selectedLatitude;
-            document.cookie = 'lon=' + selectedLongitude;
+            let expires = new Date();
+            expires.setTime(expires.getTime() + 7 * 86400 * 1000); // 7 days * 24 hours * 1 sec
+            document.cookie = 'city=' + selectedCity + '; expires=' + expires.toUTCString();
+            document.cookie = 'country=' + selectedCountry + '; expires=' + expires.toUTCString();
+            document.cookie = 'lat=' + selectedLatitude + '; expires=' + expires.toUTCString();
+            document.cookie = 'lon=' + selectedLongitude + '; expires=' + expires.toUTCString();
             this.url = new URL(window.location.href);
 
             window.history.pushState({}, '', this.url);
