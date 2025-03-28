@@ -1,7 +1,5 @@
 from asgiref.sync import sync_to_async
 from loguru import logger
-from django_ratelimit.core import is_ratelimited
-from django_ratelimit.exceptions import Ratelimited
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -14,22 +12,11 @@ from server.views import weather_view
 async def index_view(request) -> HttpResponse:
     logger.bind(view="index_view")
 
-    # Check if the request is rate-limited
-    if await sync_to_async(is_ratelimited)(
-        request,
-        fn=index_view,
-        key="ip",  # Rate limit based on IP address
-        rate="1/s",  # 1 request per second
-        increment=True,  # Increment the counter
-    ):
-        logger.warning("Rate-limited signup attempt from IP")
-        # Handle rate limit exceeded
-        raise Ratelimited()
-
     logger.info("GET request to render index view")
     try:
         location = await sync_to_async(get_location)(request)
 
+        # FIX: remove query request support (or update it): ?city=Baku&country=Azerbaijan
         data = await weather_view(
             request,
             city=request.GET.get(

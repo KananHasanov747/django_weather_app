@@ -7,7 +7,7 @@ from ninja import NinjaAPI, Query
 from ninja.schema import BaseModel
 from ninja.decorators import decorate_view
 
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django_ratelimit.core import is_ratelimited
 from django_ratelimit.exceptions import Ratelimited
 
@@ -47,7 +47,7 @@ async def cities_view(request, q: Optional[str] = Query(None)) -> List:
         request,
         fn=cities_view,
         key="ip",  # Rate limit based on IP address
-        rate="10/s",  # 10 request per second
+        rate="5/s",  # 5 requests per second
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
@@ -87,7 +87,7 @@ async def weather_view(
     country: str,
     lat: str,
     lon: str,
-) -> Dict[str, None]:
+) -> Dict[str, None] | HttpResponseForbidden:
     logger.bind(view="weather_view")
 
     # Check if the request is rate-limited
@@ -95,7 +95,7 @@ async def weather_view(
         request,
         fn=weather_view,
         key="ip",  # Rate limit based on IP address
-        rate="4/s",  # 1 request per second
+        rate="1/s",  # 1 request per second
         method="GET",  # Apply to GET requests
         increment=True,  # Increment the counter
     ):
