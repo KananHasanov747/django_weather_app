@@ -4,7 +4,6 @@
       "src": "config/asgi.py",
       "use": "@vercel/python",
       "config": {
-        "entrypoint": "vercel.entrypoint.sh",
         "maxLambdaSize": "15mb",
         "runtime": "python3.12"
       }
