@@ -56,8 +56,8 @@ def get_location(request):
                     "lat": obj.lat,
                     "lon": obj.lon,
                 },
-                timeout=86400,
-            )  # 1 day
+                timeout=3600,  # 1 hours
+            )
             return location
         else:
             return {}
