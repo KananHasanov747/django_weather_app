@@ -101,7 +101,6 @@ INSTALLED_APPS = [
         "servestatic.runserver_nostatic" if DEBUG else False,
         "django_htmx",
         "django_cotton",
-        "django_recaptcha",
         # apps
         "server.apps.ServerConfig",
         "users.apps.UsersConfig",
@@ -241,13 +240,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #################
 
 COTTON_DIR = "components"
-
-####################
-# GOOGLE reCAPTCHA #
-####################
-
-RECAPTCHA_PUBLIC_KEY = env("DJANGO_RECAPTCHA_PUBLIC_KEY")
-RECAPTCHA_PRIVATE_KEY = env("DJANGO_RECAPTCHA_PRIVATE_KEY")
 
 #################
 # MISCELLANEOUS #

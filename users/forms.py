@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UsernameField
-from django_recaptcha.fields import ReCaptchaField
 
 from .models import User
 
@@ -32,13 +31,13 @@ class LoginForm(forms.Form):
             }
         ),
     )
-    captcha = ReCaptchaField(label="")
 
     class Meta:
         model = User
-        fields = ["username", "password", "captcha"]
+        fields = ["username", "password"]
 
 
+# TODO: add dynamic error
 class RegisterForm(forms.ModelForm):
     username = forms.CharField(
         max_length=32,

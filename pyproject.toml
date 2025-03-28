@@ -19,7 +19,6 @@ dependencies = [
     "servestatic==3.0.0",
     "uvicorn>=0.34.0",
     "django-ratelimit>=4.1.0",
-    "django-recaptcha>=4.0.0",
     "gunicorn>=23.0.0",
     "uvicorn-worker>=0.3.0",
     "redis>=5.2.1",
