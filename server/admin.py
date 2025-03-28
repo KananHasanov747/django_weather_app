@@ -3,7 +3,7 @@ from .models import City
 
 
 class CityAdmin(admin.ModelAdmin):
-    list_display = ["city", "country", "population"]
+    list_display = ["city", "country"]
     ordering = ["city"]
 
 

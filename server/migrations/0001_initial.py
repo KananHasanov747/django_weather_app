@@ -26,7 +26,6 @@ class Migration(migrations.Migration):
                 ("country", models.CharField(max_length=60)),
                 ("lat", models.FloatField()),
                 ("lon", models.FloatField()),
-                ("population", models.IntegerField()),
             ],
             options={
                 "verbose_name_plural": "cities",
