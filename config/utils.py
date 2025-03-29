@@ -33,7 +33,7 @@ def get_location(request):
             query = f"""
                     SELECT * 
                     FROM (
-                      SELECT id, lat, lon,
+                      SELECT id,
                         (3959 * acos(
                             cos(radians({lat})) * cos(radians(lat)) *
                             cos(radians(lon) - radians({lon})) +
