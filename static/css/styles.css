@@ -676,8 +676,8 @@
   .max-h-8 {
     max-height: calc(var(--spacing) * 8);
   }
-  .min-h-\[30rem\] {
-    min-height: 30rem;
+  .min-h-dvh {
+    min-height: 100dvh;
   }
   .w-11 {
     width: calc(var(--spacing) * 11);
