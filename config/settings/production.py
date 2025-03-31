@@ -2,7 +2,7 @@ from ._base import *  # noqa
 
 
 CONN_MAX_AGE = 600  # 10 minutes
-SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply to subdomains
 SECURE_HSTS_PRELOAD = True  # Allow preloading in browsers
 SECURE_BROWSER_XSS_FILTER = True
