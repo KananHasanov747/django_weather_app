@@ -6,7 +6,8 @@ from astral.sun import sun
 from astral import LocationInfo
 from typing import Dict
 from datetime import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 @dataclass
@@ -97,6 +98,21 @@ class WeatherAPI:
         self.lon = lon
 
     def forecast_icons(self, w_code):
+        """
+        0	        Clear sky
+        1, 2, 3     Mainly clear, partly cloudy, and overcast
+        45, 48	    Fog and depositing rime fog
+        51, 53, 55	Drizzle: Light, moderate, and dense intensity
+        56, 57	    Freezing Drizzle: Light and dense intensity
+        61, 63, 65	Rain: Slight, moderate and heavy intensity
+        66, 67	    Freezing Rain: Light and heavy intensity
+        71, 73, 75	Snow fall: Slight, moderate, and heavy intensity
+        77	        Snow grains
+        80, 81, 82	Rain showers: Slight, moderate, and violent
+        85, 86	    Snow showers slight and heavy
+        95 *	    Thunderstorm: Slight or moderate
+        96, 99 *	Thunderstorm with slight and heavy hail
+        """
         desc = self.forecast_desc[w_code]
         match w_code:
             case 0 | 1:
@@ -192,7 +208,9 @@ class WeatherAPI:
                     date=datetime.strptime(dt, "%Y-%m-%dT%H:%M").strftime("%H:%M"),
                     is_day=is_day,
                     icon_url={
-                        format: self.static_location + hourly_icon_name + f".{format}"
+                        format: staticfiles_storage.url(
+                            self.static_location + hourly_icon_name + f".{format}"
+                        )
                         for format in self.image_formats
                     },
                     description=self.forecast_desc[w_code],
@@ -229,7 +247,9 @@ class WeatherAPI:
                     time=dt,
                     day_of_week=datetime.strptime(dt, "%Y-%m-%d").strftime("%A"),
                     icon_url={
-                        format: self.static_location + daily_icon_name + f".{format}"
+                        format: staticfiles_storage.url(
+                            self.static_location + daily_icon_name + f".{format}"
+                        )
                         for format in self.image_formats
                     },
                     description=self.forecast_desc[w_code],
@@ -244,7 +264,7 @@ class WeatherAPI:
             "country": self.country,
             "latitude": self.lat,
             "longitude": self.lon,
-            "current": current_weather,
-            "hourly": hourly_weathers,
-            "daily": daily_weathers,
+            "current": asdict(current_weather),
+            "hourly": [asdict(item) for item in hourly_weathers],
+            "daily": [asdict(item) for item in daily_weathers],
         }

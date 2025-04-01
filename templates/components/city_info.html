@@ -3,19 +3,21 @@
     <div class="flex p-4 xl:px-11 xl:py-7">
         <div class="flex-grow">
             <div class="mb-6">
-                <h2 class="text-4xl text-light-white font-semibold mb-1.5">{{ data.city }}</h2>
-                <h3 class="text-xl text-light-white font-semibold">{{ data.country }}</h3>
-                <span class="text-sm text-dark-white font-normal tracking-wide">Chance of rain: {{ data.current.rain }}%</span>
+                <h2 class="text-4xl text-light-white font-semibold mb-1.5"
+                    x-text="data.city"></h2>
+                <h3 class="text-xl text-light-white font-semibold" x-text="data.country"></h3>
+                <span class="text-sm text-dark-white font-normal tracking-wide"
+                      x-text="'Chance of rain: ' + data.current.rain + '%'"></span>
             </div>
             <div class="mb-2">
-                <span class="text-6xl text-light-white font-medium">{{ data.current.temperature }}°</span>
+                <span class="text-6xl text-light-white font-medium"
+                      x-text="data.current.temperature + '°'"></span>
             </div>
         </div>
         <picture>
-            <source srcset="{% static data.current.icon_url|index:'webp' %}"
-                    type="image/webp">
-            <img src="{% static data.current.icon_url|index:'png' %}"
-                 alt="{{ data.current.description }}"
+            <source :srcset="data.current.icon_url.webp" type="image/webp" />
+            <img :src="data.current.icon_url.png"
+                 :alt="data.current.description"
                  class="my-auto h-30 lg:h-40 6xl:h-48.5" />
         </picture>
     </div>

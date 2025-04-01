@@ -39,7 +39,7 @@ def get_cities(q) -> List:
         namespace="server_api",
     )
 )
-async def cities_view(request, q: Optional[str] = Query(None)) -> List:
+async def cities_view(request, q: Optional[str] = Query(None)) -> JsonResponse:
     logger.bind(view="cities_view")
 
     # Check if the request is rate-limited
@@ -55,11 +55,12 @@ async def cities_view(request, q: Optional[str] = Query(None)) -> List:
         # Handle rate limit exceeded
         raise Ratelimited()
 
-    return await get_cities(q)
-
-
-async def city_search_view(request, query):
-    return JsonResponse(await cities_view(request, query), safe=False)
+    try:
+        cities = await get_cities(q)
+        return JsonResponse(cities, safe=False)
+    except Exception as e:
+        logger.exception(f"Error during cities_view processing: {e}")
+        raise e
 
 
 class WeatherSchema(BaseModel):
@@ -109,5 +110,5 @@ async def weather_view(
         logger.success(f"Fetched the city ({data['city']}, {data['country']})")
         return data
     except Exception as e:
-        logger.exception(f"Error during index_view processing: {e}")
+        logger.exception(f"Error during weather_view processing: {e}")
         raise e

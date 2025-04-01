@@ -7,7 +7,7 @@
     index: null,
     get fetchCities() {
         if (this.query.length > 0) {
-            fetch(`/search/${this.query}/`).then((response) => response.text()).then((list) => {
+            fetch(`{% url 'server_api:city' %}?q=${this.query}`).then((response) => response.text()).then((list) => {
                 this.cities = JSON.parse(list);
                 this.highlightedIndex = 0;
             })
@@ -52,18 +52,22 @@
             document.cookie = 'country=' + selectedCountry + '; expires=' + expires.toUTCString();
             document.cookie = 'lat=' + selectedLatitude + '; expires=' + expires.toUTCString();
             document.cookie = 'lon=' + selectedLongitude + '; expires=' + expires.toUTCString();
-            this.url = new URL(window.location.href);
 
             window.history.pushState({}, '', this.url);
-            htmx.ajax('GET', this.url.toString(), {
-                target: '#content',
+            htmx.ajax('GET', '{% url 'server_api:weather' %}', {
                 values: {
                     city: selectedCity,
                     country: selectedCountry,
                     lat: selectedLatitude,
                     lon: selectedLongitude,
+                },
+                handler: (elt, response) => {
+                    const contentElement = document.getElementById('content');
+                    const data = JSON.parse(response.xhr.responseText);
+                    Alpine.$data(contentElement).updateWeather(data);
                 }
             });
+            this.cities = [];
         }
     }
 } "

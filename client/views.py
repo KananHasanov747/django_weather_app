@@ -19,38 +19,31 @@ async def index_view(request) -> HttpResponse:
         # FIX: remove query request support (or update it): ?city=Baku&country=Azerbaijan
         data = await weather_view(
             request,
-            city=request.GET.get(
-                "city",
+            city=(
                 request.COOKIES.get(
                     "city", None
                 )  # Return if a user visited a city & reloaded the page
-                or location.get("city", None)
-                or "Tokyo",
+                or location.get("city", "Tokyo")
             ),
-            country=request.GET.get(
-                "country",
-                request.COOKIES.get("country", None)
-                or location.get("country", None)
-                or "Japan",
+            country=(
+                request.COOKIES.get("country", None) or location.get("country", "Japan")
             ),
-            lat=request.GET.get(
-                "lat",
+            lat=(
                 request.COOKIES.get("lat", None)
-                or location.get("lat", None)
-                or "35.68970000000000197",
+                or location.get("lat", "35.68970000000000197")
             ),
-            lon=request.GET.get(
-                "lon",
+            lon=(
                 request.COOKIES.get("lon", None)
-                or location.get("lon", None)
-                or "139.692200000000014",
+                or location.get("lon", "139.692200000000014")
             ),
         )
 
         template_name = "components/weather.html" if request.htmx else "index.html"
 
         return await sync_to_async(render, thread_sensitive=False)(
-            request, template_name, {"data": data, "weather_action": True}
+            request,
+            template_name,
+            {"data": data, "weather_action": True},
         )
     except Exception as e:
         logger.exception(f"Error during index_view processing: {e}")
