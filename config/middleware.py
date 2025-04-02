@@ -43,13 +43,17 @@ class RestrictDirectAccessMiddleware(MiddlewareMixin):
 
             # Check referer with stricter validation
             referer = request.META.get("HTTP_REFERER")
-            if referer and any(
-                [
-                    referer.startswith(
-                        f"https://{host}"
-                    )  # http:// is redundant if SECURE_SSL_REDIRECT=True redirects HTTP to HTTPS
-                    for host in settings.ALLOWED_HOSTS
-                ]
+            if (
+                referer
+                and referer.startswith("https://")
+                and any(
+                    [
+                        referer.endswith(
+                            f"{host}/"
+                        )  # http:// is redundant if SECURE_SSL_REDIRECT=True redirects HTTP to HTTPS
+                        for host in settings.ALLOWED_HOSTS
+                    ]
+                )
             ):
                 # Reuest coming from the enlisted host, proceed normally
                 return None
