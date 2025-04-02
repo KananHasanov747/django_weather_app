@@ -6,20 +6,17 @@
 
 - [x] [Django](https://www.djangoproject.com/) as the main backend framework
 - [x] [Django-Ninja](https://django-ninja.dev/) for building APIs with type hints
-- [x] [django-recaptcha](https://github.com/django-recaptcha/django-recaptcha) support
 - [x] [HTMX](https://htmx.org/) + [Alpine.js](https://alpinejs.dev/) that provides lightweight, reactive approach to building dynamic SSR
 - [x] [TailwindCSS v4](https://tailwindcss.com/blog/standalone-cli) support (using standalone cli)
 - [x] [PinesUI](https://devdojo.com/pines) support: an Alpine & Tailwind UI library of animations, sliders, and more as a set of UI elements to copy/paste
 - [x] Uvicorn/Gunicorn support
 - [x] A pyproject.toml file for **[uv](https://github.com/astral-sh/uv)** package manager
-- [x] Manual HTML compression at runtime in middleware
 - [x] [ServeStatic](https://github.com/Archmonger/ServeStatic) support (a WhiteNoise alternative for ASGI) for simplified static file serving
-- [x] A number of largely populated cities in `weather_cities_dump.sql` (47868 variations/cities) with the following columns:
+- [x] A number of largely populated cities in `weather_cities_dump.sql` (approx. 151000 cities), provided by [dr5hn/countries-states-cities-database](https://github.com/dr5hn/countries-states-cities-database), with the following columns::
   - city
   - country
   - latitude
   - longitude
-  - population
 - [x] Has scripts for:
   - Development mode (`./scripts/dev.sh`)
   - Pre-production mode (`./scripts/preprod.sh`)
@@ -34,7 +31,7 @@
 The easiest way to run the app locally is to use Docker/Podman as follows:
 
 - Ensure, that all ports (`8433` for app, `5432` for postgres, `6379` for redis) are not currently in use (use `lsof -i -P | grep LISTEN` to check busy ports in UNIX systems)
-- Ensure, that you uncommented `[sshd]` & `[sshd-ddos]` in **fail2ban/jail.local** if deciding not to implement SSH/HTTPS inside container
+- Ensure, that you uncommented `[sshd]` & `[sshd-ddos]` in **fail2ban/jail.local** if decided not to implement SSH/HTTPS inside container
 - To load the app with the simplest configuration, run:
   `docker compose -f compose.yml -f compose.nginx.yml -f compose.redis.yml up --build`
   or
@@ -42,7 +39,7 @@ The easiest way to run the app locally is to use Docker/Podman as follows:
 - If you don't want to use **Nginx**, replace it with `-f compose.servestatic.yml` (don't forget to check the ports running; they have to be as same as **DJANGO_PORT**)
 - To add Postgres into the app, append `-f compose.postgres.yml` before `up --build`
 
-In case you decide to host on the platform (in my case, it is AWS EC2):
+In case you decide to host on the platform (in my case, it is AWS EC2; though Vercel is also good, the former has more freedom):
 
 - Sign-up (or sign-in) to your account where you want to host it
 - Run the Cloud Machine (specifically **Ubuntu**, but **Debian** & **Fedora** are fine too)
