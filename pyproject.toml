@@ -16,7 +16,7 @@ dependencies = [
     "django-htmx>=1.21.0",
     "django-environ>=0.12.0",
     "loguru>=0.7.3",
-    "servestatic==3.0.0",
+    "servestatic[brotli]>=3.0.1",
     "uvicorn>=0.34.0",
     "django-ratelimit>=4.1.0",
     "gunicorn>=23.0.0",
